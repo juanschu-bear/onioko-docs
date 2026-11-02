@@ -1,9 +1,1795 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "ANIMA Session API",
-    "description": "Start and manage ANIMA avatar sessions",
-    "version": "1.1.0"
+    "title": "ONIOKO Partner API",
+    "version": "1.0.0"
   },
-  "paths": {}
+  "paths": {
+    "/v1/subjects": {
+      "post": {
+        "tags": [
+          "Subjects"
+        ],
+        "summary": "Create an opaque subject for this tenant.",
+        "operationId": "createSubject",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._~-]+$",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectCreated"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "subjects:write"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      },
+      "get": {
+        "tags": [
+          "Subjects"
+        ],
+        "summary": "List this tenant's active subjects by cursor.",
+        "operationId": "listSubjects",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectsPage"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "subjects:read"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "cursor",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    },
+    "/v1/subjects/{subject_id}/consents": {
+      "post": {
+        "tags": [
+          "Consent"
+        ],
+        "summary": "Record an explicitly granted subject consent.",
+        "operationId": "createConsent",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Subject Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._~-]+$",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentGrantRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentCreated"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "consent:write"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      },
+      "get": {
+        "tags": [
+          "Consent"
+        ],
+        "summary": "List a subject's consent records by cursor.",
+        "operationId": "listConsents",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Subject Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentsPage"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "consent:read"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "cursor",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    },
+    "/v1/subjects/{subject_id}/consents/{consent_id}": {
+      "delete": {
+        "tags": [
+          "Consent"
+        ],
+        "summary": "Revoke a subject consent and close its partner session records.",
+        "description": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope. A successful response confirms that associated runtime sessions were stopped.",
+        "operationId": "revokeConsent",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Subject Id"
+            }
+          },
+          {
+            "name": "consent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Consent Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._~-]+$",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentRevoked"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "consent:write"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    },
+    "/v1/sessions": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Start a session for a subject with active perception consent.",
+        "description": "Contains pseudonymous personal data. A repeated start with the same key returns the original result; an uncertain start is never repeated automatically.",
+        "operationId": "startSession",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._~-]+$",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionStartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionCreated"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "Consent is missing or the idempotency key conflicts"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "sessions:write"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    },
+    "/v1/sessions/{session_id}": {
+      "get": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Read the registered state of a consented partner session.",
+        "description": "The status describes the stored session record, not verified remote participant presence.",
+        "operationId": "getSession",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionInfo"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "sessions:read"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      },
+      "delete": {
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Close a partner session and stop its remote avatar call.",
+        "description": "The call stop is retried safely when the same idempotency key is used; an unconfirmed stop returns 503.",
+        "operationId": "closeSession",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._~-]+$",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionClosed"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "The idempotency key conflicts with another request"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "sessions:write"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    },
+    "/v1/sessions/{session_id}/perception": {
+      "get": {
+        "tags": [
+          "Perception"
+        ],
+        "summary": "Read the latest perception for an active, consented session.",
+        "description": "Contains pseudonymous personal data. A consent and session check occurs before and after reading.",
+        "operationId": "getPerception",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "speaker_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Speaker Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerceptionResponse"
+                }
+              }
+            },
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked partner key"
+          },
+          "403": {
+            "description": "The key does not have the required scope"
+          },
+          "404": {
+            "description": "The subject or consent does not exist in this tenant"
+          },
+          "409": {
+            "description": "Consent is missing or the session is closed"
+          },
+          "410": {
+            "description": "The subject has been deleted"
+          },
+          "429": {
+            "description": "Tenant rate limit exceeded",
+            "headers": {
+              "API-Version": {
+                "description": "Partner API version.",
+                "schema": {
+                  "type": "string",
+                  "example": "1"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "Configured per-tenant requests per minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "Remaining requests in the current minute.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until retry.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The partner storage service is unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-partner-api": true,
+        "x-required-scopes": [
+          "perception:read"
+        ],
+        "x-api-version": "1",
+        "x-pagination": "not applicable",
+        "x-privacy": "Contains pseudonymous personal data. Access is limited to the authenticated tenant and granted scope.",
+        "x-rate-limit": "Per tenant, per minute; response headers state the active limit."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConsentCreated": {
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject Id"
+          },
+          "consent_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consent Id"
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "consent_version": {
+            "type": "string",
+            "title": "Consent Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_id",
+          "consent_id",
+          "purpose",
+          "consent_version"
+        ],
+        "title": "ConsentCreated"
+      },
+      "ConsentGrantRequest": {
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Purpose"
+          },
+          "consent_version": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Consent Version"
+          },
+          "granted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Granted",
+            "description": "Partner confirms that the subject granted this specific consent."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "purpose",
+          "consent_version",
+          "granted"
+        ],
+        "title": "ConsentGrantRequest"
+      },
+      "ConsentItem": {
+        "properties": {
+          "consent_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consent Id"
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "consent_version": {
+            "type": "string",
+            "title": "Consent Version"
+          },
+          "granted_at": {
+            "type": "string",
+            "title": "Granted At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consent_id",
+          "purpose",
+          "consent_version",
+          "granted_at",
+          "revoked_at"
+        ],
+        "title": "ConsentItem"
+      },
+      "ConsentRevoked": {
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject Id"
+          },
+          "consent_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consent Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "revoked",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_id",
+          "consent_id",
+          "status"
+        ],
+        "title": "ConsentRevoked"
+      },
+      "ConsentsPage": {
+        "properties": {
+          "consents": {
+            "items": {
+              "$ref": "#/components/schemas/ConsentItem"
+            },
+            "type": "array",
+            "title": "Consents"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consents",
+          "next_cursor"
+        ],
+        "title": "ConsentsPage"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PerceptionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "speaker_name": {
+            "type": "string",
+            "title": "Speaker Name"
+          },
+          "perception": {
+            "type": "string",
+            "title": "Perception"
+          },
+          "timestamp": {
+            "type": "number",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "speaker_name",
+          "perception",
+          "timestamp"
+        ],
+        "title": "PerceptionResponse"
+      },
+      "SessionClosed": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "closed",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "status"
+        ],
+        "title": "SessionClosed"
+      },
+      "SessionCreated": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "join_url": {
+            "type": "string",
+            "title": "Join Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "join_url"
+        ],
+        "title": "SessionCreated"
+      },
+      "SessionInfo": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "starting",
+              "active"
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "subject_id",
+          "status",
+          "created_at"
+        ],
+        "title": "SessionInfo"
+      },
+      "SessionStartRequest": {
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject Id"
+          },
+          "consent_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consent Id"
+          },
+          "persona": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Persona"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "de",
+              "en",
+              "es"
+            ],
+            "title": "Language",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_id",
+          "consent_id",
+          "persona"
+        ],
+        "title": "SessionStartRequest"
+      },
+      "SubjectCreated": {
+        "properties": {
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Subject Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_id"
+        ],
+        "title": "SubjectCreated"
+      },
+      "SubjectsPage": {
+        "properties": {
+          "subjects": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Subjects"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subjects",
+          "next_cursor"
+        ],
+        "title": "SubjectsPage"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Subjects",
+      "description": "Create and list subjects."
+    },
+    {
+      "name": "Consent",
+      "description": "Record, list, and revoke subject consent."
+    },
+    {
+      "name": "Sessions",
+      "description": "Start, inspect, and close sessions."
+    },
+    {
+      "name": "Perception",
+      "description": "Read perception data for a session."
+    }
+  ]
 }

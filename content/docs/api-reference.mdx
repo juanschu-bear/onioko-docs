@@ -1,13 +1,13 @@
 ---
 title: API reference
-description: Generated from the OpenAPI contract in anima-core. Every released operation appears here with the same ten parts.
+description: Generated from the OpenAPI contract of the platform layer. Every operation appears here with the same ten parts and its release state.
 icon: Braces
 ---
 
-The reference is **generated**, never typed. The source is `anima-core/docs/public-api/openapi.json`, produced from the running API and filtered by an explicit release list. This repository copies it with `npm run sync:public-api` and renders one page per released operation under **API** in the sidebar.
+The reference is **generated**, never typed. The source is the platform layer's `openapi.json`, produced from the running API and limited to partner operations. This site copies it with `npm run sync:public-api` and renders one page per operation under **API** in the sidebar, grouped by resource.
 
 <Callout type="warn" title="Released operations today">
-  0. The release list in `anima-core` is still empty. Internal operations exist (49 at the last sync) and are deliberately excluded from this reference. The [status page](./status) tracks each resource.
+  0. 9 operations are prepared (Subjects, Consent, Sessions, Perception): the code exists, the contract is generated from it and verified in CI, but nothing is live for partners yet. Their pages carry a banner and the contract can still change before release. Internal operations (49 at the last sync) are excluded. The [status page](./status) tracks each resource.
 </Callout>
 
 ## Resources

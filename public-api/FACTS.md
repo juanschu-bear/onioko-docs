@@ -1,7 +1,9 @@
 # ONIOKO: Fakten aus dem Code
 
-Stand: `anima-core` auf dem Stand dieses Commits. Öffentlicher Partnervertrag:
-**0 freigegebene Operationen**. Interne APIs und ihre Beispiele unten sind keine
+Stand: `anima-core` auf dem Stand dieses Commits. Die vorbereitete Partner-Spec
+beschreibt v1-Routen; deren Produktionsfreigabe und Datenbankmigration stehen
+noch aus (`STATUS.json`). **Derzeit 0 live freigegebene Operationen**. Interne
+APIs und ihre Beispiele unten sind keine
 Einladung, diese Routen extern zu verwenden. Wo Code oder Vertrag fehlt, wird
 das ausdrücklich gesagt. `WhatsAnima/...` bezeichnet das getrennte Repository
 im selben Workspace und dessen bei der Prüfung vorliegende Arbeitskopie;
@@ -16,7 +18,7 @@ Sessions: intern `POST /api/sessions/start`, `GET /api/sessions`,
 (`anima/api.py`). Memory: interne Dienste in `mem0_service.py` und
 `anima/memory_agent.py`; zusätzlich liegt die Produkt-Route in WhatsAnima,
 Migration nach anima-core offen: `WhatsAnima/api/update-memory.ts`. Subjects:
-eine externe Subjects-Ressource existiert noch nicht; interne Zuordnung über
+eine live freigegebene Subjects-Ressource existiert noch nicht; interne Zuordnung über
 `contact_id`, `owner_id` und `conversation_id` in `anima/live_perception.py`.
 Consent: liegt in WhatsAnima, Migration nach anima-core offen:
 `WhatsAnima/api/identity-consent.ts`; Core liest Einwilligung intern in
@@ -24,20 +26,29 @@ Consent: liegt in WhatsAnima, Migration nach anima-core offen:
 existieren noch nicht. Das ist keine Aussage, dass interne Speicher- oder
 Löschfunktionen fehlen (`anima/memory_agent.py`, `anima/session_logger.py`).
 
+Im vorbereiteten, noch nicht freigegebenen Partner-Code existieren zusätzlich
+`GET/POST /v1/subjects`, `GET/POST /v1/subjects/{subject_id}/consents`,
+`DELETE /v1/subjects/{subject_id}/consents/{consent_id}`, `POST /v1/sessions`,
+`GET/DELETE /v1/sessions/{session_id}` und
+`GET /v1/sessions/{session_id}/perception` (`anima/partner_subjects.py`,
+`anima/partner_sessions.py`, `anima/partner_perception.py`).
+
 ## 2. OpenAPI
 
-FastAPI erzeugt das Schema der Session-App aus `app = FastAPI(...)` und den
-Routen in `anima/api.py`. Dies ist das Gesamtschema der App, nicht ein
-freigegebener Partnervertrag. `scripts/generate_public_openapi.py` filtert
-`app.openapi()` anhand der ausdrücklich gepflegten Freigabeliste; derzeit ist
-sie leer. Ergebnis: `docs/public-api/openapi.json`; geprüfte Ausschlüsse in
-`docs/public-api/EXCLUDED.md`. Automatische CI-Einbindung existiert noch nicht;
-`--check` ist verfügbar, muss aber separat ausgeführt bzw. eingebunden werden.
+Die Session-App in `anima/api.py` hat ein eigenes Gesamtschema.
+`scripts/generate_public_openapi.py` liest `app.openapi()` der separaten
+Partner-Anwendung `anima/partner_app.py`, die nur markierte Partner-Routen
+enthält. Ergebnis: `docs/public-api/openapi.json`; Ausschlüsse stehen in
+`docs/public-api/EXCLUDED.md`. Die CI generiert aus der echten Laufzeit und
+prüft den Git-Diff. Ein grüner Branch-Test ist keine Produktionsfreigabe.
 
 ## 3. Authentifizierung
 
-Ein öffentlicher Partner-Key mit Scopes, Rotation und Browser-Key-Rechten
-existiert in diesem Vertrag noch nicht. Der interne Adapter
+Der vorbereitete Partner-Code akzeptiert Bearer-Keys im Format `onio_…`, prüft
+einen SHA-256-Digest und explizite Scopes pro Mandant und weist widerrufene,
+abgelaufene oder deaktivierte Schlüssel bzw. Mandanten ab (`anima/partner_auth.py`,
+`migrations/001_partner_v1_foundation.sql`). Ein administrativer Key-Ausgabe- oder
+Rotationsendpunkt und Browser-Key-Rechte existieren noch nicht. Der interne Adapter
 `POST /v1/chat/completions` prüft einen Bearer-Wert gegen
 `CUSTOM_LLM_API_KEY` (`anima/api.py`); das ist kein dokumentierter Browser-Key.
 OPM- und LiveKit-Schlüssel in `anima/api.py` und `anima/opm_capture.py` sind
@@ -102,15 +113,23 @@ Zustellwegen, Retries und Signatur existiert noch nicht. Ein SSE-Aufruf in
 
 ## 10. Limits
 
-Partner-Rate-Limits und Maximalgrößen pro Aufruf: existieren noch nicht bzw.
-sind nicht belegt. Einzelne interne Grenzen sind nicht übertragbar: z. B.
+Im vorbereiteten Partner-Code sind 60 Anfragen je Mandant und Minute der
+Standard, serverseitig durch `PARTNER_RATE_PER_MINUTE` konfigurierbar
+(`anima/partner_rate_limit.py`); Listen erlauben maximal 100 Einträge je Seite,
+Idempotency-Keys 16–128 Zeichen (`anima/partner_subjects.py`). Keine dieser
+Grenzen ist als live bestätigter Produktionswert belegt. Einzelne interne Grenzen
+sind nicht übertragbar: z. B.
 `system_prompt_override` mit `max_length=100_000` in `anima/api.py` und
 begrenzter Frame-Puffer in `anima/opm_capture.py`.
 
 ## 11. Idempotenz
 
-Ein öffentlicher Idempotenz-Header und dazugehörige Garantien existieren noch
-nicht. Intern bildet `mem0_service.py` für `/ingest` einen Hash aus dem Payload
+Die vorbereiteten schreibenden Partner-Routen verlangen `Idempotency-Key`;
+die Datenbankfunktionen in `migrations/002_partner_v1_atomic_controls.sql`,
+`003_partner_subject_consent.sql` und `004_partner_sessions.sql` behandeln
+gleiche Wiederholungen und Payload-Konflikte. Unklare externe Sessionstarts
+werden nicht automatisch wiederholt. Die Produktivmigration und reale
+Ende-zu-Ende-Bestätigung stehen noch aus. Intern bildet `mem0_service.py` für `/ingest` einen Hash aus dem Payload
 und verwendet `mem0_journal.py`; dies ist kein Header-Vertrag. In
 `anima/glue_service.py` wird ein internes `idempotency_key`-Feld verwendet.
 

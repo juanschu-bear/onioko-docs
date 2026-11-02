@@ -55,7 +55,9 @@ enthaltene interne Dienste: `mem0_service.py` (`POST /ingest`, `GET /query`,
 Laufzeiten und sind keine Teilrouten von `anima.api.app`.
 
 Generierung: `python scripts/generate_public_openapi.py`; CI-Prüfung:
-`python scripts/generate_public_openapi.py --check`. Die API-Abhängigkeiten
-aus `pyproject.toml` und `deploy/vast/requirements-api.lock` sind nötig.
-Der Generator verweigert nicht geprüfte neue oder entfernte `anima.api.app`-
-Operationen; danach müssen Freigabe und diese Liste bewusst überprüft werden.
+`python scripts/generate_public_openapi.py --check`. Der Generator liest die
+separate Partner-FastAPI `anima/partner_app.py`; die 33 Legacy-Operationen sind
+dort nicht eingebunden. Er verweigert Operationen ohne Partner-Markierung und
+Pflichtfelder. Die Abhängigkeiten aus `deploy/vast/requirements-api.lock` und
+die Partner-Testkonfiguration sind erforderlich. Änderungen am Legacy-Inventar
+erfordern weiterhin eine gesonderte Überprüfung dieser Liste.

@@ -1,13 +1,13 @@
 ---
 title: API-Referenz
-description: Erzeugt aus dem OpenAPI-Vertrag in anima-core. Jede freigegebene Operation erscheint hier mit denselben 10 Teilen.
+description: Erzeugt aus dem OpenAPI-Vertrag der Plattformschicht. Jede Operation erscheint hier mit denselben 10 Teilen und ihrem Freigabestand.
 icon: Braces
 ---
 
-Die Referenz wird **erzeugt**, nie getippt. Quelle ist `anima-core/docs/public-api/openapi.json`, aus der laufenden API erzeugt und über eine ausdrückliche Freigabeliste gefiltert. Dieses Repository kopiert sie mit `npm run sync:public-api` und rendert je freigegebener Operation eine Seite unter **API** in der Seitenleiste.
+Die Referenz wird **erzeugt**, nie getippt. Quelle ist die `openapi.json` der Plattformschicht, aus der laufenden API erzeugt und auf Partner-Operationen begrenzt. Diese Seite kopiert sie mit `npm run sync:public-api` und rendert je Operation eine Seite unter **API** in der Seitenleiste, gruppiert nach Ressource.
 
 <Callout type="warn" title="Freigegebene Operationen heute">
-  0. Die Freigabeliste in `anima-core` ist noch leer. Interne Operationen existieren (49 beim letzten Abgleich) und sind bewusst aus dieser Referenz ausgeschlossen. Die [Status-Seite](./status) verfolgt jede Ressource.
+  0. 9 Operationen sind vorbereitet (Subjects, Consent, Sessions, Perception): Der Code existiert, der Vertrag wird daraus erzeugt und in der CI geprüft, aber nichts ist für Partner live. Ihre Seiten tragen ein Banner, der Vertrag kann sich bis zur Freigabe noch ändern. Interne Operationen (49 beim letzten Abgleich) sind ausgeschlossen. Die [Status-Seite](./status) verfolgt jede Ressource.
 </Callout>
 
 ## Ressourcen
