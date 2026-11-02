@@ -5,18 +5,58 @@
   "releasedOperations": 0,
   "excludedOperations": 49,
   "resources": [
-    { "id": "subjects-consent", "state": "migrating", "note_en": "Consent logic lives inside an ONIOKO product today; the partner contract is being created in the platform layer first.", "note_de": "Consent-Logik liegt heute in einem ONIOKO-Produkt; der Partnervertrag entsteht zuerst in der Plattformschicht." },
-    { "id": "sessions", "state": "planned", "note_en": "Session routes exist internally and are not yet released as partner contract.", "note_de": "Session-Routen existieren intern und sind noch nicht als Partnervertrag freigegeben." },
-    { "id": "perception", "state": "planned", "note_en": "Perception routes exist internally and are not yet released as partner contract.", "note_de": "Perception-Routen existieren intern und sind noch nicht als Partnervertrag freigegeben." },
-    { "id": "memory", "state": "migrating", "note_en": "Product memory lives inside an ONIOKO product; migration into the platform layer is open.", "note_de": "Produkt-Memory liegt in einem ONIOKO-Produkt; Migration in die Plattformschicht offen." },
-    { "id": "export-deletion", "state": "planned", "note_en": "Not yet a partner resource.", "note_de": "Noch keine Partnerressource." },
-    { "id": "events", "state": "planned", "note_en": "Not yet a partner resource.", "note_de": "Noch keine Partnerressource." }
+    {
+      "id": "subjects-consent",
+      "state": "migrating",
+      "note_en": "Consent logic lives inside an ONIOKO product today; the partner contract is being created in the platform layer first.",
+      "note_de": "Consent-Logik liegt heute in einem ONIOKO-Produkt; der Partnervertrag entsteht zuerst in der Plattformschicht."
+    },
+    {
+      "id": "sessions",
+      "state": "planned",
+      "note_en": "Session routes exist internally and are not yet released as partner contract.",
+      "note_de": "Session-Routen existieren intern und sind noch nicht als Partnervertrag freigegeben."
+    },
+    {
+      "id": "perception",
+      "state": "planned",
+      "note_en": "Perception routes exist internally and are not yet released as partner contract.",
+      "note_de": "Perception-Routen existieren intern und sind noch nicht als Partnervertrag freigegeben."
+    },
+    {
+      "id": "memory",
+      "state": "migrating",
+      "note_en": "Product memory lives inside an ONIOKO product; migration into the platform layer is open.",
+      "note_de": "Produkt-Memory liegt in einem ONIOKO-Produkt; Migration in die Plattformschicht offen."
+    },
+    {
+      "id": "export-deletion",
+      "state": "planned",
+      "note_en": "Not yet a partner resource.",
+      "note_de": "Noch keine Partnerressource."
+    },
+    {
+      "id": "events",
+      "state": "planned",
+      "note_en": "Not yet a partner resource.",
+      "note_de": "Noch keine Partnerressource."
+    }
   ],
   "sdks": [
-    { "id": "browser", "state": "planned" },
-    { "id": "server", "state": "planned" },
-    { "id": "events", "state": "planned" }
+    {
+      "id": "browser",
+      "state": "planned"
+    },
+    {
+      "id": "server",
+      "state": "planned"
+    },
+    {
+      "id": "events",
+      "state": "planned"
+    }
   ],
   "sandbox": "planned",
-  "onDevice": "open"
+  "onDevice": "open",
+  "preparedOperations": 0
 }

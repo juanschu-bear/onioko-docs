@@ -23,8 +23,8 @@ const docs = defineDocs({
 export const source = loader(
   {
     docs: docs.toFumadocsSource(),
-    // One page per released operation, generated from public-api/openapi.json.
-    openapi: await openapi.staticSource({ baseDir: 'api' }),
+    // One page per operation in public-api/openapi.json, grouped by tag (Subjects, Consent, Sessions, Perception).
+    openapi: await openapi.staticSource({ baseDir: 'api', per: 'operation', groupBy: 'tag' }),
   },
   {
     baseUrl: docsRoute,

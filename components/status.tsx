@@ -21,8 +21,9 @@ export function StatusBoard({ lang = 'en' }: { lang?: Lang }) {
   const l = lang;
   return (
     <div className="not-prose my-6 grid gap-3">
-      <div className="grid grid-cols-3 gap-3 text-sm">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
         <div className="rounded-xl border border-fd-border bg-fd-card p-4"><div className="text-xs uppercase tracking-widest text-fd-muted-foreground mb-1">{l === 'de' ? 'Freigegebene Operationen' : 'Released operations'}</div><div className="text-3xl font-extrabold">{status.releasedOperations}</div></div>
+        <div className="rounded-xl border border-fd-border bg-fd-card p-4"><div className="text-xs uppercase tracking-widest text-fd-muted-foreground mb-1">{l === 'de' ? 'Vorbereitete Operationen' : 'Prepared operations'}</div><div className="text-3xl font-extrabold">{status.preparedOperations}</div></div>
         <div className="rounded-xl border border-fd-border bg-fd-card p-4"><div className="text-xs uppercase tracking-widest text-fd-muted-foreground mb-1">{l === 'de' ? 'Interne Operationen' : 'Internal operations'}</div><div className="text-3xl font-extrabold">{status.excludedOperations}</div></div>
         <div className="rounded-xl border border-fd-border bg-fd-card p-4"><div className="text-xs uppercase tracking-widest text-fd-muted-foreground mb-1">{l === 'de' ? 'Stand' : 'As of'}</div><div className="text-lg font-bold">{status.asOf}</div><div className="text-xs text-fd-muted-foreground font-mono">{status.source}</div></div>
       </div>

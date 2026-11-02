@@ -98,3 +98,9 @@ html > body[data-scroll-locked] {
 /* Home */
 .onk-hero h1 { font-family: var(--font-serif), 'Iowan Old Style', serif; font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
 .onk-hero h1 b { color: var(--cog); font-weight: 400; }
+
+/* API reference: banner for operations whose resource is not released */
+.onk-release-banner { margin: 0 0 1.5rem; padding: 14px 16px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); background: color-mix(in srgb, var(--amber) 10%, transparent); }
+.onk-release-banner[data-s='planned'] { border-color: color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.onk-release-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 15px; }
+.onk-release-banner p { margin: 0; font-size: 14px; color: color-mix(in srgb, var(--ink) 80%, transparent); }

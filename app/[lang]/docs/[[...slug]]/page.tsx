@@ -13,6 +13,7 @@ import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getPageImageUrl, getPageMarkdownUrl, gitConfig } from '@/lib/shared';
 import { OpenAPIPage } from '@/components/api-page';
+import { ReleaseBanner } from '@/components/release-banner';
 
 export default async function Page(props: PageProps<'/[lang]/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -20,11 +21,14 @@ export default async function Page(props: PageProps<'/[lang]/docs/[[...slug]]'>)
   if (!page) notFound();
 
   if (page.type === 'openapi') {
+    const props = page.data.getOpenAPIPageProps();
+    const lang = params.lang === 'de' ? 'de' : 'en';
     return (
       <DocsPage full>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsBody>
-          <OpenAPIPage {...page.data.getOpenAPIPageProps()} />
+          <ReleaseBanner paths={(props.operations ?? []).map((o) => o.path)} lang={lang} />
+          <OpenAPIPage {...props} />
         </DocsBody>
       </DocsPage>
     );

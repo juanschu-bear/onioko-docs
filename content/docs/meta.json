@@ -12,6 +12,10 @@
     "trust",
     "status",
     "---API---",
+    "api/subjects",
+    "api/consent",
+    "api/sessions",
+    "api/perception",
     "...api"
   ]
 }
