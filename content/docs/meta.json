@@ -1,0 +1,17 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "concepts",
+    "flow-charts",
+    "getting-started",
+    "integration-contract",
+    "sdks",
+    "api-reference",
+    "events",
+    "trust",
+    "status",
+    "---API---",
+    "...api"
+  ]
+}

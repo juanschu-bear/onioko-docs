@@ -1,0 +1,31 @@
+---
+title: SDKs
+description: Three SDKs are planned. A public SDK is listed only when it meets all seven requirements below.
+icon: Package
+---
+
+<Callout type="warn" title="Status">
+  No public ONIOKO SDK exists yet. Until one is released, integrations use the controlled documentation supplied during onboarding. Current state per SDK is on the [status page](./status).
+</Callout>
+
+## The three SDKs
+
+| SDK | Purpose | Lives where |
+| --- | --- | --- |
+| **Browser and realtime** | Capture and live-session integration with explicit consent and availability handling. | In the partner's web app. Never holds server keys. |
+| **Server** | Tenant-safe requests, orchestration, export and deletion. | On the partner's server. |
+| **Events** | Typed handling for asynchronous results, retries, ordering and idempotency. | On the partner's server, next to the webhook receiver. |
+
+## The seven requirements
+
+An SDK is a versioned client, not a marketing label. ONIOKO lists an SDK publicly only when all of these exist:
+
+1. **Installation**: package source, minimum runtime versions, one command, verifiable.
+2. **Authentication**: where the key comes from, how it is held, what must never live in a browser, rotation.
+3. **Typed interfaces**: every resource as a type, every error as a type, nothing as `any`.
+4. **Runnable examples**: create session, set consent, submit input, read signals, write and read memory, export, delete. Every example runs against the sandbox.
+5. **Semantic versioning**: what counts as a breaking change, how long old major versions live.
+6. **Migration notes**: from every major version to the next, with before and after code.
+7. **Changelog**: every version, every date, every change. Machine-readable and human-readable.
+
+When an SDK is released, its page appears in this section with exactly these seven parts, in this order.

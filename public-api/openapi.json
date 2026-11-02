@@ -1,0 +1,9 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ANIMA Session API",
+    "description": "Start and manage ANIMA avatar sessions",
+    "version": "1.1.0"
+  },
+  "paths": {}
+}

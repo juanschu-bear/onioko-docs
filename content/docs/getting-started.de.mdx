@@ -1,0 +1,38 @@
+---
+title: Erste Schritte
+description: Wie Zugang heute funktioniert, was du vorbereitest, und wie die erste Session aussieht, sobald eine Ressource freigegeben ist.
+icon: Rocket
+---
+
+<Callout type="warn" title="Aktueller Stand">
+  Es gibt noch keinen Self-Service-Key und keine öffentliche Sandbox. Zugang zur ONIOKO-API wird in einem kontrollierten Onboarding vergeben, gegen eine echte Integration. Die [Status-Seite](./status) zeigt, welche Ressourcen freigegeben sind.
+</Callout>
+
+## Wie Zugang funktioniert
+
+1. **Gespräch zuerst.** Du beschreibst, in welchem System ONIOKO sitzen soll (Roboter, Avatar, Praxis-System, Plattform) und ob Rechenleistung das Gerät verlassen darf. Das passende [Flow Chart](./flow-charts) wird zum gemeinsamen Bild.
+2. **Umfang und Vertrag.** Zweck, Datenort, Aufbewahrung und Löschfristen werden im [Integrationsvertrag](./integration-contract) festgelegt, bevor ein Key existiert.
+3. **Kontrollierte Dokumentation.** Du bekommst API-Referenz, SDK und Testzugang für die freigegebenen Ressourcen. Derselbe Inhalt erscheint hier, sobald eine Ressource öffentlich freigegeben ist.
+4. **Erste Session gegen dein System.** Nicht gegen eine Demo. Das Erste, was du siehst, ist ein echtes Signal aus deiner eigenen Eingabe, oder ein ehrliches "nicht verfügbar".
+
+## Was du vorbereitest
+
+- Den **Einwilligungsablauf** auf deiner Seite: Wie eine Person zustimmt, wie sie sieht, dass wahrgenommen wird, wie sie widerruft.
+- Die **Subject-Zuordnung**: Wie deine Identitäten auf pseudonyme Subjects abgebildet werden, wenn ONIOKO nichts über echte Identitäten wissen soll.
+- Die **Momente**: Welche Situationen in deinem Produkt überhaupt wahrgenommen werden sollen. ONIOKO nimmt nie dauerhaft auf.
+- Deinen **Löschauslöser**: Was in deinem Produkt einen Löschauftrag startet, und wohin der Nachweis geht.
+
+## Wie die ersten 15 Minuten aussehen
+
+Sobald Sessions, Perception und Consent freigegeben sind, ist der minimale Weg immer gleich, in jedem SDK:
+
+```text
+1. Subject anlegen           → eine stabile, pseudonyme Referenz
+2. Einwilligung setzen       → Zweck, Umfang, Dauer
+3. Session anlegen           → an dieses Subject gebunden
+4. 1 Eingabe übergeben       → Audio, Video oder ein Stream
+5. Signale lesen             → gemessene Werte, oder "nicht verfügbar"
+6. Session schließen
+```
+
+Exakte Aufrufe, Felder und Limits erscheinen in der [API-Referenz](./api-reference), sobald sie freigegeben sind. Diese Seite zeigt dann dieselben 6 Schritte als lauffähigen Code.

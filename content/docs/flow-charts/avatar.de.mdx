@@ -1,0 +1,21 @@
+---
+title: Extended Avatar live
+description: Ein Extended Avatar im Gespräch mit einem Menschen. Perception läuft im Gespräch mit, Memory gibt Kontinuität über Gespräche hinweg.
+full: true
+---
+
+<FlowChart case="avatar" />
+
+## Ablauf
+
+1. **Mensch.** Willigt im Interface ein, sieht, dass wahrgenommen wird, kann es mit 1 Klick ausschalten.
+2. **Partner-App.** Bindet das Browser-SDK ein: Capture, Live-Session, Consent-UI, Verfügbarkeits-Handling.
+3. **Avatar.** Bekommt Live-Signale und Kontext aus früheren Gesprächen. Bleibt der Avatar.
+4. **Einwilligung.** Je Gespräch.
+5. **Perception.** Live-Signale.
+6. **Memory.** Gespräch zu Gespräch.
+7. **Partner-Server.** Hält Server-Keys, orchestriert Sessions, verarbeitet Events, löst Export und Löschung aus.
+
+<Callout>
+  Der Browser hält nie Keys mit Server-Rechten. Verfügbarkeit wird dem Menschen angezeigt, nie versteckt.
+</Callout>

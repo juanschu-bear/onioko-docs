@@ -1,0 +1,32 @@
+---
+title: Status
+description: Welche Ressourcen freigegeben, in Migration oder geplant sind. Aus den Vertragsdateien in anima-core gelesen, nicht von Hand geschrieben.
+icon: Activity
+---
+
+Diese Seite ist der ehrliche Zähler. Zahlen und Zustände kommen aus `public-api/STATUS.json`, abgeglichen mit `anima-core`. Wird eine Ressource freigegeben, erscheinen ihre Operationen automatisch in der API-Referenz, und der Zähler ändert sich.
+
+<StatusBoard lang="de" />
+
+## Die Zustände lesen
+
+| Zustand | Bedeutung |
+| --- | --- |
+| <Status state="released" lang="de" /> | Teil des öffentlichen Vertrags. Operationen stehen in der API-Referenz. Unter Versionspolitik. |
+| <Status state="migrating" lang="de" /> | Existiert heute in einem Produkt und wird in die Plattformschicht überführt. Für Partner noch nicht aufrufbar. |
+| <Status state="planned" lang="de" /> | Als Partnerressource definiert, noch nicht freigegeben. Kann intern existieren. |
+| <Status state="internal" lang="de" /> | Existiert im Code und ist bewusst nicht Teil des öffentlichen Vertrags. |
+
+## Offene Fragen, die hier verfolgt werden
+
+- **On-device**: Welche Teile von Perception und Memory ohne Cloud laufen können. Entscheidet Variante B im Roboter-Flow-Chart.
+- **Sandbox**: Eine getrennte Umgebung mit eigenen Keys. Geplant.
+- **Datenort und Unterauftragnehmer**: Je Vertrag festgelegt; die öffentliche Zusammenfassung folgt mit dem ersten unterschriebenen Vertrag.
+
+## Reihenfolge der Freigabe
+
+1. Subjects und Consent, Sessions, Perception.
+2. Memory, nach der Migration in die Plattformschicht.
+3. Export und Löschung, Events.
+
+Die Reihenfolge folgt 1 Regel: Nichts darf wahrgenommen oder erinnert werden, bevor Einwilligung als Vertrag existiert.

@@ -1,0 +1,38 @@
+---
+title: Getting started
+description: How access works today, what to prepare, and what the first session will look like once a resource is released.
+icon: Rocket
+---
+
+<Callout type="warn" title="Current state">
+  There is no self-service key and no public sandbox yet. Access to the ONIOKO API is granted during a controlled onboarding, against a real integration. The [status page](./status) shows which resources are released.
+</Callout>
+
+## How access works
+
+1. **Conversation first.** You describe which system ONIOKO should sit in (robot, avatar, practice system, platform) and whether compute may leave the device. The matching [flow chart](./flow-charts) becomes the shared picture.
+2. **Scope and contract.** Purpose, data location, retention and deletion deadlines are fixed in the [integration contract](./integration-contract) before any key exists.
+3. **Controlled documentation.** You receive the API reference, SDK and test access for the released resources. The same content appears here as soon as a resource is released publicly.
+4. **First session against your system.** Not against a demo. The first thing you see is a real signal from your own input, or an honest "unavailable".
+
+## What to prepare
+
+- The **consent flow** on your side: how a person agrees, how they see that perception is active, how they revoke.
+- The **subject mapping**: how your identities map to pseudonymous subjects, if you want ONIOKO to know nothing about real identities.
+- The **moments**: which situations in your product should be perceived at all. ONIOKO never records continuously.
+- Your **deletion trigger**: what in your product starts a deletion request, and where the receipt goes.
+
+## What the first 15 minutes will look like
+
+Once Sessions, Perception and Consent are released, the minimal path is always the same, in every SDK:
+
+```text
+1. create subject            → a stable, pseudonymous reference
+2. set consent               → purpose, scope, duration
+3. create session            → bound to that subject
+4. submit one input          → audio, video or a stream
+5. read signals              → measured values, or "unavailable"
+6. close session
+```
+
+Exact calls, fields and limits appear in the [API reference](./api-reference) the moment they are released. This page will then show the same six steps as runnable code.

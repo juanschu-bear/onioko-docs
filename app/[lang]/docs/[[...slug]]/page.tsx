@@ -12,11 +12,23 @@ import { getMDXComponents } from '@/components/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getPageImageUrl, getPageMarkdownUrl, gitConfig } from '@/lib/shared';
+import { OpenAPIPage } from '@/components/api-page';
 
-export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
+export default async function Page(props: PageProps<'/[lang]/docs/[[...slug]]'>) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = source.getPage(params.slug, params.lang);
   if (!page) notFound();
+
+  if (page.type === 'openapi') {
+    return (
+      <DocsPage full>
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsBody>
+          <OpenAPIPage {...page.data.getOpenAPIPageProps()} />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
 
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
@@ -33,31 +45,23 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         />
       </div>
       <DocsBody>
-        <MDX
-          components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
-          })}
-        />
+        <MDX components={getMDXComponents({ a: createRelativeLink(source, page) })} />
       </DocsBody>
     </DocsPage>
   );
 }
 
 export async function generateStaticParams() {
-  return source.generateParams();
+  return source.generateParams('slug', 'lang');
 }
 
-export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<'/[lang]/docs/[[...slug]]'>): Promise<Metadata> {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = source.getPage(params.slug, params.lang);
   if (!page) notFound();
-
   return {
     title: page.data.title,
-    description: page.data.description,
-    openGraph: {
-      images: getPageImageUrl(page).url,
-    },
+    description: page.type === 'openapi' ? undefined : page.data.description,
+    openGraph: { images: getPageImageUrl(page).url },
   };
 }

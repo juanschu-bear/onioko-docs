@@ -1,13 +1,40 @@
 ---
-title: Hello World
-description: Your first document
+title: Overview
+description: What ONIOKO offers developers, what it deliberately does not do, and where to start.
+icon: Compass
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+ONIOKO builds **Extended Human Cognition**: technology that perceives observable signals from face, voice and body over time, and keeps what it perceived as memory with its source intact. Products are built on top of it. Partners integrate it.
 
-## What is Next?
+Every content or conversation tool today reads two things: the text and the numbers. ONIOKO adds a third reading, the person in the video or in the room, and a memory that holds these impressions together over weeks. The human always keeps the interpretation.
+
+## The four layers
+
+| Layer | What it does | For partners |
+| --- | --- | --- |
+| **Perception** | Reads observable signals from face, voice and body, without labels. | Submit or stream consented inputs, receive measured signals or an unavailable state. |
+| **Memory** | Connects the current context with long-term memory, source and provenance intact. | Write and retrieve person-bound records. |
+| **Cognition** | Places memory next to current questions, sources stay visible. | Used inside ONIOKO products today. |
+| **Presence** | Extended Avatars with face, voice and continuity across conversations. | Used inside ONIOKO products today. |
+
+## What ONIOKO does not do
+
+- No emotion labels. Signals are described, never named as feelings.
+- No scoring of people, no ranking, no population scoring.
+- No medical or psychological diagnosis.
+- No continuous recording. Only chosen moments, with consent that can be revoked and leads to deletion.
+
+These are not a legal footnote. They are constraints built into every call: without valid consent for a subject, Perception answers "unavailable" and Memory writes nothing.
+
+## Where to start
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="Flow charts" href="./flow-charts" description="4 integration scenarios on one map: where ONIOKO sits in your system, what goes in, what comes out." />
+  <Card title="Concepts" href="./concepts" description="Session, subject, consent, signal, memory entry. Five terms, one sentence each." />
+  <Card title="Status" href="./status" description="Which resources are released, which are migrating, which are planned. Generated from the code, not written by hand." />
+  <Card title="Getting started" href="./getting-started" description="How access works. Keys and sandbox are part of onboarding, not a form on this site." />
 </Cards>
+
+<Callout title="Honest or absent">
+  This documentation shows only what exists in the code. A resource that is not released appears as planned or migrating, never as a placeholder that looks live. The API reference is generated from the OpenAPI contract in `anima-core`; nothing in it is typed by hand.
+</Callout>

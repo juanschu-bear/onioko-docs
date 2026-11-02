@@ -1,0 +1,32 @@
+---
+title: Events
+description: How asynchronous results reach the partner once the Events resource is released.
+icon: Radio
+---
+
+<Callout type="warn" title="Status">
+  The Events resource is planned and not yet released. Internal participant events exist (joined, left, speaking, silent) and are not a partner webhook. This page states the contract the released version will meet.
+</Callout>
+
+## Why events exist
+
+Perception on a recording and memory consolidation take time. Instead of polling, the partner receives an event when a result is ready, a session closes, or a deletion is complete.
+
+## What every event will carry
+
+- A **type** from a documented list, with an example payload each.
+- A **session and subject reference**, never raw input data.
+- A **delivery id** for idempotent handling: the same event may arrive twice, the id makes the second one a no-op.
+- A **signature** the receiver verifies before trusting the payload.
+
+## Delivery rules the released version will document
+
+| Rule | What the documentation will state |
+| --- | --- |
+| Retries | Schedule and maximum attempts when the receiver fails |
+| Ordering | Whether order is guaranteed per session, and how to handle out-of-order delivery |
+| Idempotency | The id field and the recommended dedupe window |
+| Signature | Algorithm, header, rotation of the signing secret |
+| Receiver down | How long events are kept and how to replay them |
+
+The Events SDK wraps all of this in typed handlers, see [SDKs](./sdks).

@@ -1,12 +1,100 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-openapi/css/preset.css';
+
+/* ONIOKO tokens, same values as onioko.com (app/globals.css there). */
+:root {
+  --deep: #07131e;
+  --deep-2: #0a1826;
+  --ink: #f4f3ee;
+  --cog: #37b7ff;
+  --cog-hi: #6ccbff;
+  --amber: #f4b85b;
+  --coral: #f06f78;
+  --violet: #8c7cff;
+  --mint: #63e6c1;
+  --fd-layout-width: 1440px;
+}
+
+@theme {
+  --font-sans: var(--font-sans), 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --color-onk-deep: #07131e;
+  --color-onk-cog: #37b7ff;
+  --color-onk-violet: #8c7cff;
+  --color-onk-mint: #63e6c1;
+  --color-onk-amber: #f4b85b;
+  --color-onk-coral: #f06f78;
+  --color-onk-ink: #f4f3ee;
+}
+
+.dark {
+  --color-fd-background: #07131e;
+  --color-fd-foreground: #f4f3ee;
+  --color-fd-muted: #0e1c2a;
+  --color-fd-muted-foreground: rgba(244, 243, 238, 0.62);
+  --color-fd-popover: #0b1826;
+  --color-fd-popover-foreground: #f4f3ee;
+  --color-fd-card: #0a1725;
+  --color-fd-card-foreground: #f4f3ee;
+  --color-fd-border: rgba(244, 243, 238, 0.12);
+  --color-fd-primary: #37b7ff;
+  --color-fd-primary-foreground: #07131e;
+  --color-fd-secondary: #0f1f2e;
+  --color-fd-secondary-foreground: #f4f3ee;
+  --color-fd-accent: rgba(55, 183, 255, 0.14);
+  --color-fd-accent-foreground: #f4f3ee;
+  --color-fd-ring: #37b7ff;
+}
 
 html {
   scrollbar-gutter: stable;
+  background: var(--deep);
 }
-
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
 html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+.onk-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.onk-mark small {
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+  color: var(--cog);
+}
+
+/* Status chips used in MDX and the status board */
+.onk-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.onk-status[data-s='released'] { color: var(--mint); border-color: rgba(99, 230, 193, 0.45); background: rgba(99, 230, 193, 0.1); }
+.onk-status[data-s='migrating'] { color: var(--amber); border-color: rgba(244, 184, 91, 0.45); background: rgba(244, 184, 91, 0.1); }
+.onk-status[data-s='planned'] { color: rgba(244, 243, 238, 0.7); border-color: rgba(244, 243, 238, 0.25); background: rgba(244, 243, 238, 0.05); }
+.onk-status[data-s='internal'] { color: var(--coral); border-color: rgba(240, 111, 120, 0.45); background: rgba(240, 111, 120, 0.1); }
+
+/* Home */
+.onk-hero h1 { font-family: var(--font-serif), 'Iowan Old Style', serif; font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
+.onk-hero h1 b { color: var(--cog); font-weight: 400; }

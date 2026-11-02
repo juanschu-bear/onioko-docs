@@ -1,9 +1,14 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
+import { FlowChart } from '@/components/flow/flow-chart';
+import { Status, StatusBoard } from '@/components/status';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
+    FlowChart,
+    Status,
+    StatusBoard,
     ...components,
   } satisfies MDXComponents;
 }

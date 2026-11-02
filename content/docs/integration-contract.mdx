@@ -1,0 +1,40 @@
+---
+title: Integration contract
+description: Who is responsible for what when ONIOKO runs inside a partner system.
+icon: Handshake
+---
+
+An integration is a contract between two systems and the people in between. This page states the responsibilities in plain language. The legal document mirrors it, this page does not replace it.
+
+## The partner
+
+- **Obtains consent** from each person, with purpose, scope and duration, in a way the person understands.
+- **Shows** when perception is active and offers a way to stop it.
+- **Maps identities**: the partner knows who a subject is, ONIOKO may only know a pseudonymous reference.
+- **Triggers deletion** when a person requests it, and forwards the receipt.
+- **Holds keys securely**: server keys never reach a browser or a device in the field.
+
+## ONIOKO
+
+- **Processes only consented inputs** and answers "unavailable" otherwise.
+- **Stores** signals and memory entries with source and provenance, for the agreed retention.
+- **Deletes** on request within the agreed deadline, including derivations, and issues a receipt.
+- **Exports** a person's data in a portable format on request.
+- **Never adds** emotion labels, scores or diagnoses.
+
+## What happens on revocation
+
+Revocation applies at once. Running sessions stop receiving perception, new memory entries are not written. Existing entries stay until a deletion request arrives, because revocation and deletion are different rights and a person may want one without the other.
+
+## Open until fixed in the contract
+
+| Item | State |
+| --- | --- |
+| Data location | Fixed per contract, see [status](./status) |
+| Retention period | Fixed per contract |
+| Deletion deadline and receipt format | Fixed per contract |
+| Subprocessors | Listed in the data processing agreement |
+
+<Callout>
+  Nothing on this page grants rights by itself. It explains what the contract will contain so both sides can prepare.
+</Callout>

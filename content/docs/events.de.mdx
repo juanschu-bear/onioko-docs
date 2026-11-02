@@ -1,0 +1,32 @@
+---
+title: Events
+description: Wie asynchrone Ergebnisse den Partner erreichen, sobald die Events-Ressource freigegeben ist.
+icon: Radio
+---
+
+<Callout type="warn" title="Status">
+  Die Events-Ressource ist geplant und noch nicht freigegeben. Interne Teilnehmerereignisse existieren (joined, left, speaking, silent) und sind kein Partner-Webhook. Diese Seite nennt den Vertrag, den die freigegebene Version erfüllen wird.
+</Callout>
+
+## Warum es Events gibt
+
+Perception auf einer Aufzeichnung und die Konsolidierung von Memory brauchen Zeit. Statt zu pollen, erhält der Partner ein Event, wenn ein Ergebnis bereit ist, eine Session schließt oder eine Löschung abgeschlossen ist.
+
+## Was jedes Event tragen wird
+
+- Einen **Typ** aus einer dokumentierten Liste, mit je einem Beispiel-Payload.
+- Eine **Session- und Subject-Referenz**, nie Rohdaten.
+- Eine **Zustell-ID** für idempotente Verarbeitung: Dasselbe Event kann 2-mal ankommen, die ID macht das zweite zu einem No-op.
+- Eine **Signatur**, die der Empfänger prüft, bevor er dem Payload vertraut.
+
+## Zustellregeln, die die freigegebene Version dokumentieren wird
+
+| Regel | Was die Dokumentation festlegen wird |
+| --- | --- |
+| Wiederholungen | Zeitplan und maximale Versuche, wenn der Empfänger ausfällt |
+| Reihenfolge | Ob Reihenfolge je Session garantiert ist und wie man mit Abweichungen umgeht |
+| Idempotenz | Das ID-Feld und das empfohlene Dedupe-Fenster |
+| Signatur | Algorithmus, Header, Rotation des Signiergeheimnisses |
+| Empfänger down | Wie lange Events aufbewahrt werden und wie man sie nachspielt |
+
+Das Events-SDK kapselt all das in typisierte Handler, siehe [SDKs](./sdks).

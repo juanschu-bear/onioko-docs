@@ -1,0 +1,31 @@
+---
+title: SDKs
+description: 3 SDKs sind geplant. Ein öffentliches SDK wird nur gelistet, wenn es alle 7 Anforderungen unten erfüllt.
+icon: Package
+---
+
+<Callout type="warn" title="Status">
+  Es gibt noch kein öffentliches ONIOKO-SDK. Bis eines freigegeben ist, nutzen Integrationen die kontrollierte Dokumentation aus dem Onboarding. Der Stand je SDK steht auf der [Status-Seite](./status).
+</Callout>
+
+## Die 3 SDKs
+
+| SDK | Zweck | Läuft wo |
+| --- | --- | --- |
+| **Browser und Realtime** | Capture und Live-Session-Integration mit ausdrücklicher Einwilligung und Verfügbarkeits-Handling. | In der Web-App des Partners. Hält nie Server-Keys. |
+| **Server** | Mandantensichere Aufrufe, Orchestrierung, Export und Löschung. | Auf dem Server des Partners. |
+| **Events** | Typisierte Verarbeitung asynchroner Ergebnisse, Wiederholungen, Reihenfolge und Idempotenz. | Auf dem Server des Partners, neben dem Webhook-Empfänger. |
+
+## Die 7 Anforderungen
+
+Ein SDK ist ein versionierter Client, kein Marketing-Label. ONIOKO listet ein SDK nur öffentlich, wenn all das existiert:
+
+1. **Installation**: Paketquelle, Mindestversionen der Laufzeit, 1 Befehl, verifizierbar.
+2. **Authentifizierung**: Woher der Key kommt, wie er gehalten wird, was nie im Browser liegen darf, Rotation.
+3. **Typisierte Schnittstellen**: Jede Ressource als Typ, jeder Fehler als Typ, nichts als `any`.
+4. **Lauffähige Beispiele**: Session anlegen, Einwilligung setzen, Eingabe senden, Signale lesen, Memory schreiben und lesen, Export, Löschung. Jedes Beispiel läuft gegen die Sandbox.
+5. **Semantische Versionierung**: Was ein Breaking Change ist, wie lange alte Major-Versionen leben.
+6. **Migrationshinweise**: Von jeder Major-Version zur nächsten, mit Vorher/Nachher-Code.
+7. **Changelog**: Jede Version, jedes Datum, jede Änderung. Maschinenlesbar und lesbar.
+
+Wenn ein SDK freigegeben wird, erscheint seine Seite in diesem Bereich mit genau diesen 7 Teilen, in dieser Reihenfolge.

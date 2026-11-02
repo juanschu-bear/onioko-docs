@@ -1,0 +1,37 @@
+---
+title: API-Referenz
+description: Erzeugt aus dem OpenAPI-Vertrag in anima-core. Jede freigegebene Operation erscheint hier mit denselben 10 Teilen.
+icon: Braces
+---
+
+Die Referenz wird **erzeugt**, nie getippt. Quelle ist `anima-core/docs/public-api/openapi.json`, aus der laufenden API erzeugt und über eine ausdrückliche Freigabeliste gefiltert. Dieses Repository kopiert sie mit `npm run sync:public-api` und rendert je freigegebener Operation eine Seite unter **API** in der Seitenleiste.
+
+<Callout type="warn" title="Freigegebene Operationen heute">
+  0. Die Freigabeliste in `anima-core` ist noch leer. Interne Operationen existieren (49 beim letzten Abgleich) und sind bewusst aus dieser Referenz ausgeschlossen. Die [Status-Seite](./status) verfolgt jede Ressource.
+</Callout>
+
+## Ressourcen
+
+| Ressource | Wofür |
+| --- | --- |
+| **Subjects und Consent** | Identität und Rechte verwalten, die jede andere Ressource begrenzen. |
+| **Sessions** | Begrenzte Interaktionskontexte anlegen und schließen, Verarbeitungsstatus prüfen. |
+| **Perception** | Eingewilligte Eingaben übergeben oder streamen, gemessene Signale oder "nicht verfügbar" erhalten. |
+| **Memory** | Personengebundene Einträge schreiben und abrufen, Quelle und Herkunft bleiben erhalten. |
+| **Export und Löschung** | Portable Daten und nachweisbare Lebenszyklus-Operationen anfordern. |
+| **Events** | Asynchrone Ergebnisse empfangen, siehe [Events](./events). |
+
+## Die 10 Teile jedes Endpunkts
+
+Jede erzeugte Seite trägt diese Teile, in dieser Reihenfolge. Fehlt einer im Vertrag, scheitert der Build, statt eine unvollständige Seite zu veröffentlichen.
+
+1. **Zweck in 1 Satz**, mit Link zum passenden Flow Chart.
+2. **Authentifizierung und Berechtigung**: welcher Key, welcher Scope, welche Consent-Bedingung erfüllt sein muss.
+3. **Request**: Pfad, Methode, Parameter, Body mit Typen, Pflicht und Optional, Beispiel.
+4. **Response**: Felder mit Typen, "nicht verfügbar" als dokumentierter Zustand, Beispiel.
+5. **Fehler**: jeder Code mit Ursache und Handlung. Besonders: Einwilligung fehlt, Session geschlossen, Subject gelöscht.
+6. **Paginierung**: Cursor oder Seite, Sortierung, Maximalgrößen.
+7. **Rate Limits**: pro Key, pro Session, Header, Verhalten bei Überschreitung.
+8. **Idempotenz**: welche Aufrufe wiederholbar sind, wie der Header heißt, wie lange er gilt.
+9. **Versionspolitik**: wie die Version übergeben wird, Lebensdauer, Abkündigung mit Datum.
+10. **Datenschutz-Hinweis**: welche Daten der Aufruf berührt, wie lange sie liegen, ob sie exportiert und gelöscht werden können.

@@ -1,0 +1,32 @@
+---
+title: Status
+description: Which resources are released, migrating or planned. Read from the contract files in anima-core, not written by hand.
+icon: Activity
+---
+
+This page is the honest counter. Numbers and states come from `public-api/STATUS.json`, synced from `anima-core`. When a resource is released, its operations appear in the API reference automatically and the counter changes.
+
+<StatusBoard />
+
+## How to read the states
+
+| State | Meaning |
+| --- | --- |
+| <Status state="released" /> | Part of the public contract. Operations are in the API reference. Covered by the version policy. |
+| <Status state="migrating" /> | Exists in a product today and is being moved into the platform layer. Not callable by partners yet. |
+| <Status state="planned" /> | Defined as a partner resource, not yet released. May exist internally. |
+| <Status state="internal" /> | Exists in the code and is deliberately not part of the public contract. |
+
+## Open questions tracked here
+
+- **On-device**: which parts of Perception and Memory can run without the cloud. Decides variant B in the robot flow chart.
+- **Sandbox**: a separate environment with its own keys. Planned.
+- **Data location and subprocessors**: fixed per contract; the public summary follows once the first contract is signed.
+
+## Release order
+
+1. Subjects and consent, Sessions, Perception.
+2. Memory, after its migration into the platform layer.
+3. Export and deletion, Events.
+
+The order follows one rule: nothing may be perceived or remembered before consent exists as a contract.

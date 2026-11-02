@@ -1,0 +1,49 @@
+---
+title: Concepts
+description: The five terms every call is built on, and how they constrain each other.
+icon: BookOpen
+---
+
+Five terms carry the whole API. Learn them once and every flow chart and every endpoint reads naturally.
+
+## Session
+
+A **bounded interaction context** with a start, an end and a processing status. Everything ONIOKO perceives or remembers is attached to a session. A session belongs to one or more subjects and cannot outlive their consent.
+
+## Subject
+
+The **person** a signal or memory entry is about. Subjects can be pseudonymous: the partner keeps the mapping to a real identity, ONIOKO only needs a stable reference. Every subject carries its own consent.
+
+## Consent
+
+The **permission that constrains every other resource**. It has a purpose, a scope and a duration. It can be revoked at any time. Revocation applies to running sessions immediately: Perception returns "unavailable", Memory stops writing. Deletion is a separate, explicit request with a receipt.
+
+## Signal
+
+An **observable measurement** at a point in time: gaze, pace, posture change, voice dynamics. A signal has a timestamp, a source and a value. "Unavailable" is a valid signal state, not an error. Signals are never emotion labels and never scores of a person.
+
+## Memory entry
+
+A **person-bound record with source and provenance**. Entries are typed:
+
+| Type | Meaning |
+| --- | --- |
+| Statement | Something a person said or did, as observed. |
+| Confirmation | A human confirmed an earlier entry. |
+| Interpretation | A reading of observed material, marked as interpretation. |
+| Hypothesis | A tentative reading, open for confirmation or correction. |
+| Correction | A human corrected an earlier entry. The original stays visible. |
+
+Interpretations and hypotheses are never silently promoted to statements. The human does that, by confirming.
+
+## How they constrain each other
+
+```
+Consent ──allows──▶ Session ──binds──▶ Signals ──feed──▶ Memory entries
+   │                                                           │
+   └──────────── revocation stops perception; deletion removes entries and derivations
+```
+
+<Callout type="info" title="Where the exact fields come from">
+  Field names, types and limits are defined in the OpenAPI contract and appear in the API reference as soon as a resource is released. This page explains the model; it does not invent fields.
+</Callout>

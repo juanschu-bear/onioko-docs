@@ -1,0 +1,49 @@
+---
+title: Konzepte
+description: Die 5 Begriffe, auf denen jeder Aufruf aufbaut, und wie sie sich gegenseitig begrenzen.
+icon: BookOpen
+---
+
+5 Begriffe tragen die ganze API. Einmal gelernt, liest sich jedes Flow Chart und jeder Endpunkt von selbst.
+
+## Session
+
+Ein **begrenzter Interaktionskontext** mit Anfang, Ende und Verarbeitungsstatus. Alles, was ONIOKO wahrnimmt oder erinnert, hängt an einer Session. Eine Session gehört zu 1 oder mehreren Subjects und kann deren Einwilligung nicht überdauern.
+
+## Subject
+
+Die **Person**, um die es bei einem Signal oder Memory-Eintrag geht. Subjects können pseudonym sein: Der Partner behält die Zuordnung zur echten Identität, ONIOKO braucht nur eine stabile Referenz. Jedes Subject trägt seine eigene Einwilligung.
+
+## Consent
+
+Die **Erlaubnis, die jede andere Ressource begrenzt**. Sie hat Zweck, Umfang und Dauer. Sie kann jederzeit widerrufen werden. Der Widerruf wirkt sofort auf laufende Sessions: Perception liefert "nicht verfügbar", Memory schreibt nicht mehr. Löschung ist ein eigener, ausdrücklicher Auftrag mit Nachweis.
+
+## Signal
+
+Eine **beobachtbare Messung** zu einem Zeitpunkt: Blick, Tempo, Haltungswechsel, Stimmdynamik. Ein Signal hat Zeitstempel, Quelle und Wert. "Nicht verfügbar" ist ein gültiger Signalzustand, kein Fehler. Signale sind nie Emotionslabels und nie Bewertungen einer Person.
+
+## Memory-Eintrag
+
+Ein **personengebundener Eintrag mit Quelle und Herkunft**. Einträge sind typisiert:
+
+| Typ | Bedeutung |
+| --- | --- |
+| Aussage | Etwas, das eine Person gesagt oder getan hat, wie beobachtet. |
+| Bestätigung | Ein Mensch hat einen früheren Eintrag bestätigt. |
+| Interpretation | Eine Lesart beobachteten Materials, als Interpretation markiert. |
+| Hypothese | Eine vorläufige Lesart, offen für Bestätigung oder Korrektur. |
+| Korrektur | Ein Mensch hat einen früheren Eintrag korrigiert. Das Original bleibt sichtbar. |
+
+Interpretationen und Hypothesen werden nie stillschweigend zu Aussagen. Das tut der Mensch, durch Bestätigung.
+
+## Wie sie sich gegenseitig begrenzen
+
+```
+Consent ──erlaubt──▶ Session ──bindet──▶ Signale ──speisen──▶ Memory-Einträge
+   │                                                              │
+   └──────── Widerruf stoppt Wahrnehmung; Löschung entfernt Einträge und Ableitungen
+```
+
+<Callout type="info" title="Woher die exakten Felder kommen">
+  Feldnamen, Typen und Limits sind im OpenAPI-Vertrag definiert und erscheinen in der API-Referenz, sobald eine Ressource freigegeben ist. Diese Seite erklärt das Modell, sie erfindet keine Felder.
+</Callout>

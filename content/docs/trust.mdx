@@ -1,0 +1,35 @@
+---
+title: Trust
+description: The principles every call is built on, in the words of the people who have to trust them.
+icon: ShieldCheck
+---
+
+Trust is not a page at the end of the documentation. It is the reason the API looks the way it does. Six principles, each with what it means for a developer.
+
+## 1. Chosen moments, no continuous recording
+
+A session has a start and an end that the partner's product sets deliberately. There is no background mode. **For developers:** every input is bound to a session; inputs outside a session are rejected.
+
+## 2. Consent with revocation and deletion
+
+Consent has purpose, scope and duration and can be revoked at any time. Deletion is a separate request with a receipt. **For developers:** without valid consent, Perception returns "unavailable" and Memory writes nothing. Revocation applies to running sessions immediately.
+
+## 3. No hidden emotion labels
+
+Signals are described as what a camera can see and a microphone can hear: gaze, pace, posture, voice dynamics. Never "happy", "nervous", "engaged". **For developers:** response schemas contain measurements and availability, no categorical emotion fields.
+
+## 4. No population scoring
+
+ONIOKO does not rank people against each other and does not derive scores from a population. Comparisons, where offered, are between two consented recordings and expressed in words. **For developers:** there is no score field on a person, and no endpoint that returns a ranking.
+
+## 5. No medical diagnosis
+
+ONIOKO is not a medical device and makes no diagnostic claims. Reports in practice settings are material for a professional, not a finding. **For developers:** outputs are labelled as observations; the human's confirmation or correction is a first-class memory entry.
+
+## 6. The human keeps the interpretation
+
+Interpretations and hypotheses are marked as such and never silently promoted. Confirming or correcting them is a human act that is recorded. **For developers:** memory entry types are explicit, and the source of every entry is retrievable.
+
+## Research honesty
+
+ONIOKO distinguishes between what is evidenced, plausible, hypothetical and still to be validated. Basic research is not proof of effect for a product. The documentation follows the same rule: what does not exist is marked as not yet available, never dressed up as live.

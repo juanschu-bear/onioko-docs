@@ -1,0 +1,37 @@
+---
+title: API reference
+description: Generated from the OpenAPI contract in anima-core. Every released operation appears here with the same ten parts.
+icon: Braces
+---
+
+The reference is **generated**, never typed. The source is `anima-core/docs/public-api/openapi.json`, produced from the running API and filtered by an explicit release list. This repository copies it with `npm run sync:public-api` and renders one page per released operation under **API** in the sidebar.
+
+<Callout type="warn" title="Released operations today">
+  0. The release list in `anima-core` is still empty. Internal operations exist (49 at the last sync) and are deliberately excluded from this reference. The [status page](./status) tracks each resource.
+</Callout>
+
+## Resources
+
+| Resource | What it is for |
+| --- | --- |
+| **Subjects and consent** | Manage the identity and permissions that constrain every other resource. |
+| **Sessions** | Create and close bounded interaction contexts, inspect their processing status. |
+| **Perception** | Submit or stream consented inputs, receive measured signals or an unavailable state. |
+| **Memory** | Write and retrieve person-bound records with source and provenance intact. |
+| **Export and deletion** | Request portable data and verifiable lifecycle operations. |
+| **Events** | Receive asynchronous results, see [Events](./events). |
+
+## The ten parts of every endpoint
+
+Each generated page carries these, in this order. If the contract lacks one, the build fails rather than publishing an incomplete page.
+
+1. **Purpose in one sentence**, with a link to the matching flow chart.
+2. **Authentication and permission**: which key, which scope, which consent condition must hold.
+3. **Request**: path, method, parameters, body with types, required and optional, example.
+4. **Response**: fields with types, "unavailable" as a documented state, example.
+5. **Errors**: every code with cause and action. Especially: consent missing, session closed, subject deleted.
+6. **Pagination**: cursor or page, sort order, maximum sizes.
+7. **Rate limits**: per key, per session, headers, behaviour on overflow.
+8. **Idempotency**: which calls are repeatable, the header name, how long a key is valid.
+9. **Version policy**: how the version is passed, lifetime, deprecation with date.
+10. **Data protection note**: which data the call touches, how long it stays, whether it can be exported and deleted.

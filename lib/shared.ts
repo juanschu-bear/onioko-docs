@@ -1,29 +1,21 @@
-import { createGetUrl } from 'fumadocs-core/source';
-
-export const appName = 'My App';
+export const appName = 'ONIOKO Developer Docs';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
-// fill this with your actual GitHub info, for example:
 export const gitConfig = {
-  user: 'fuma-nama',
-  repo: 'fumadocs',
+  user: 'juanschu-bear',
+  repo: 'onioko-docs',
   branch: 'main',
 };
 
-const getContentUrl = createGetUrl(docsContentRoute);
-
+// Route handlers live outside /[lang]; the locale is the first segment of their path.
 export function getPageMarkdownUrl(page: { slugs: string[]; locale?: string }) {
   const segments = [...page.slugs, 'content.md'];
-
-  return { segments, url: getContentUrl(segments, page.locale) };
+  return { segments, url: `${docsContentRoute}/${page.locale ?? 'en'}/${segments.join('/')}` };
 }
-
-const getImageUrl = createGetUrl(docsImageRoute);
 
 export function getPageImageUrl(page: { slugs: string[]; locale?: string }) {
   const segments = [...page.slugs, 'image.png'];
-
-  return { segments, url: getImageUrl(segments, page.locale) };
+  return { segments, url: `${docsImageRoute}/${page.locale ?? 'en'}/${segments.join('/')}` };
 }
