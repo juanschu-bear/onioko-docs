@@ -1,20 +1,83 @@
 ---
 title: SDKs
-description: Three SDKs are planned. A public SDK is listed only when it meets all seven requirements below.
+description: Three SDKs are planned. This page shows what each one will wrap, drawn from the prepared contract, and the seven requirements a public SDK must meet.
 icon: Package
 ---
 
-<Callout type="warn" title="Status">
-  No public ONIOKO SDK exists yet. Until one is released, integrations use the controlled documentation supplied during onboarding. Current state per SDK is on the [status page](./status).
+<Callout type="warn" title="Draft">
+  No public ONIOKO SDK exists yet. Everything below describes the surface the SDKs will wrap, derived from the 9 prepared operations. Names and signatures are a draft and can change until the first SDK is released. Until then, integrations call the contract directly; the [Integration contract](./integration-contract) and the [API reference](./api-reference) are enough for that.
 </Callout>
 
 ## The three SDKs
 
-| SDK | Purpose | Lives where |
-| --- | --- | --- |
-| **Browser and realtime** | Capture and live-session integration with explicit consent and availability handling. | In the partner's web app. Never holds server keys. |
-| **Server** | Tenant-safe requests, orchestration, export and deletion. | On the partner's server. |
-| **Events** | Typed handling for asynchronous results, retries, ordering and idempotency. | On the partner's server, next to the webhook receiver. |
+| SDK | Purpose | Lives where | Holds |
+| --- | --- | --- | --- |
+| **Server** | Tenant-safe calls to Subjects, Consent, Sessions and Perception. Export and deletion when open. | On the partner's server. | The partner key. |
+| **Browser and realtime** | Joins a session the server started, shows consent and availability state, never talks to the contract directly. | In the partner's web app or device. | A short-lived session reference only. Never the partner key. |
+| **Events** | Typed handling for asynchronous results with retries, ordering and idempotency. | On the partner's server, next to the webhook receiver. | A webhook signing secret. |
+
+## What the server SDK wraps
+
+The server SDK is a thin, typed layer over the 9 operations. It adds nothing the contract does not have; it removes the boilerplate the contract requires on every call.
+
+### Handled for you
+
+| Concern | What the SDK does |
+| --- | --- |
+| Authentication | Sends `Authorization: Bearer onio_…` from a configured secret source. Refuses to run in a browser bundle. |
+| Idempotency | Generates a compliant `Idempotency-Key` (16 to 128 characters) for every write and lets you pass your own for retries. |
+| Rate limits | Reads `RateLimit-Remaining` and `Retry-After`, waits and retries `429` with back-off. |
+| Pagination | Turns `cursor` and `next_cursor` into an async iterator. |
+| Errors | Maps the 8 error states to typed errors: `Unauthorized`, `Forbidden`, `NotFound`, `ConsentRequired`, `IdempotencyConflict`, `SubjectDeleted`, `RateLimited`, `Unavailable`. |
+| Uncertain outcomes | Surfaces an uncertain session start as its own result instead of a retry loop, as the contract requires. |
+| Version | Pins the major path and checks the `API-Version` header. |
+
+### Draft surface
+
+```ts
+// Draft. Names and shapes follow the prepared contract and can change.
+const onioko = createServerClient({ key: process.env.ONIOKO_PARTNER_KEY });
+
+const subject = await onioko.subjects.create();
+// -> { subjectId }
+
+const consent = await onioko.consent.record(subject.subjectId, {
+  purpose: 'live-perception',
+  consentVersion: '2026-11',
+  granted: true,
+});
+// -> { consentId, purpose, consentVersion }
+
+const session = await onioko.sessions.start({
+  subjectId: subject.subjectId,
+  consentId: consent.consentId,
+  persona: 'clara',
+  language: 'de',
+});
+// -> { sessionId, joinUrl }   joinUrl goes to the browser, nothing else does
+
+const perception = await onioko.perception.read(session.sessionId);
+// -> { sessionId, speakerName, perception, timestamp } or throws ConsentRequired
+
+await onioko.sessions.close(session.sessionId);
+await onioko.consent.revoke(subject.subjectId, consent.consentId);
+// revoke closes every session of that consent and confirms the stop
+
+for await (const s of onioko.subjects.list()) { /* cursor pagination handled */ }
+```
+
+## What the browser SDK wraps
+
+The browser never sees the partner key and never calls the contract. The server starts a session and hands the browser the `joinUrl` from `startSession`. The browser SDK:
+
+- joins that session and reports connection state,
+- shows whether perception is active, so the partner can render the indicator the contract requires,
+- exposes a `stop()` that ends the session from the person's side,
+- answers `unavailable` as a normal state, not as an error, when consent or session are no longer valid.
+
+## What the events SDK wraps
+
+Events is a planned resource. When it opens, the SDK verifies the webhook signature, deduplicates by event ID, delivers events in order per session and retries your handler with back-off. Until then there is nothing to wrap, and this section stays a plan.
 
 ## The seven requirements
 
@@ -23,9 +86,9 @@ An SDK is a versioned client, not a marketing label. ONIOKO lists an SDK publicl
 1. **Installation**: package source, minimum runtime versions, one command, verifiable.
 2. **Authentication**: where the key comes from, how it is held, what must never live in a browser, rotation.
 3. **Typed interfaces**: every resource as a type, every error as a type, nothing as `any`.
-4. **Runnable examples**: create session, set consent, submit input, read signals, write and read memory, export, delete. Every example runs against the sandbox.
+4. **Runnable examples**: create subject, record consent, start session, read perception, close session, revoke consent, and later export and delete. Every example runs against the sandbox.
 5. **Semantic versioning**: what counts as a breaking change, how long old major versions live.
 6. **Migration notes**: from every major version to the next, with before and after code.
 7. **Changelog**: every version, every date, every change. Machine-readable and human-readable.
 
-When an SDK is released, its page appears in this section with exactly these seven parts, in this order.
+When an SDK is released, its page appears in this section with exactly these seven parts, in this order, and the draft label above disappears.

@@ -1,40 +1,132 @@
 ---
 title: Integrationsvertrag
-description: Wer wofür verantwortlich ist, wenn ONIOKO in einem Partner-System läuft.
+description: Wer wofür verantwortlich ist, wenn ONIOKO in einem Partnersystem läuft, und welche technischen Garantien die Plattform bei jedem Aufruf durchsetzt.
 icon: Handshake
 ---
 
-Eine Integration ist ein Vertrag zwischen 2 Systemen und den Menschen dazwischen. Diese Seite nennt die Verantwortlichkeiten in klarer Sprache. Das juristische Dokument spiegelt sie, diese Seite ersetzt es nicht.
+Eine Integration ist ein Vertrag zwischen 2 Systemen und den Menschen dazwischen. Diese Seite hat 2 Hälften. Die erste nennt die Verantwortlichkeiten in klarer Sprache. Die zweite listet die technischen Garantien so, wie sie in der Plattformschicht umgesetzt sind, gelesen aus dem generierten Vertrag. Das juristische Dokument spiegelt beides; diese Seite ersetzt es nicht.
 
-## Der Partner
+<Callout type="warn" title="Stand dieses Vertrags">
+  Die technischen Garantien unten sind für die 9 vorbereiteten Operationen (Subjects, Consent, Sessions, Perception) umgesetzt und in der CI geprüft. Sie sind für Partner noch nicht geöffnet. Details können sich ändern, bis eine Ressource offen ist. Siehe [Partnerzugang](./status).
+</Callout>
 
-- **Holt die Einwilligung** jeder Person ein, mit Zweck, Umfang und Dauer, so, dass die Person es versteht.
-- **Zeigt an**, wenn wahrgenommen wird, und bietet einen Weg, es zu stoppen.
-- **Ordnet Identitäten zu**: Der Partner weiß, wer ein Subject ist, ONIOKO kennt nur eine pseudonyme Referenz, wenn so vereinbart.
-- **Löst Löschung aus**, wenn eine Person es verlangt, und leitet den Nachweis weiter.
-- **Hält Keys sicher**: Server-Keys erreichen nie einen Browser oder ein Gerät im Feld.
+## Teil 1: Verantwortlichkeiten
 
-## ONIOKO
+### Der Partner
 
-- **Verarbeitet nur eingewilligte Eingaben** und antwortet sonst mit "nicht verfügbar".
+- **Holt die Einwilligung** jeder Person ein, mit Zweck, Umfang und Dauer, so dass die Person es versteht. Der Partner trägt sie in ONIOKO ein, mit Zweck und Version des Einwilligungstextes.
+- **Zeigt an**, wenn Wahrnehmung aktiv ist, und bietet einen Weg, sie zu stoppen.
+- **Ordnet Identitäten zu**: Der Partner weiß, wer ein Subject ist. ONIOKO erhält ein opakes Subject und nie Namen, E-Mail oder Gerätekennung.
+- **Löst Löschung aus**, wenn eine Person es verlangt, und leitet die Bestätigung weiter.
+- **Verwahrt Keys sicher**: Partner-Keys sind Server-Keys. Sie landen nie in einem Browser oder auf einem Gerät im Feld.
+
+### ONIOKO
+
+- **Verarbeitet nur eingewilligte Eingaben**. Ein Aufruf ohne passende, aktive Einwilligung wird abgelehnt, nicht abgeschwächt.
+- **Trennt Mandanten**. Ein Subject, eine Einwilligung oder eine Session ist nur für den Mandanten sichtbar, der sie angelegt hat.
 - **Speichert** Signale und Memory-Einträge mit Quelle und Herkunft, für die vereinbarte Dauer.
-- **Löscht** auf Auftrag innerhalb der vereinbarten Frist, inklusive Ableitungen, und stellt einen Nachweis aus.
-- **Exportiert** die Daten einer Person auf Wunsch in portablem Format.
-- **Fügt nie** Emotionslabels, Scores oder Diagnosen hinzu.
+- **Löscht** auf Verlangen innerhalb der vereinbarten Frist, einschließlich Ableitungen, und stellt eine Bestätigung aus.
+- **Exportiert** die Daten einer Person auf Verlangen in einem portablen Format.
+- **Fügt nie** Emotionslabels, Scores oder Diagnosen hinzu. Perception beschreibt, was beobachtbar ist; die Deutung bleibt beim Menschen.
 
-## Was bei Widerruf passiert
+## Teil 2: Technische Garantien
 
-Der Widerruf wirkt sofort. Laufende Sessions erhalten keine Wahrnehmung mehr, neue Memory-Einträge werden nicht geschrieben. Bestehende Einträge bleiben, bis ein Löschauftrag kommt, weil Widerruf und Löschung verschiedene Rechte sind und eine Person das eine ohne das andere wollen kann.
+Alles in diesem Teil stammt aus dem generierten OpenAPI-Vertrag und dem Code dahinter. Fehlt eine Garantie im Code, fehlt sie hier.
+
+### Identität und Authentifizierung
+
+| Garantie | Umsetzung |
+| --- | --- |
+| Key-Format | Bearer-Key, beginnt mit `onio_`. Gesendet als `Authorization: Bearer <key>`. |
+| Key-Speicherung bei ONIOKO | Nur ein SHA-256-Digest des Keys wird gespeichert. Der Roh-Key existiert 1 Mal, bei der Ausgabe. |
+| Mandantenbindung | Jeder Key gehört zu genau 1 Mandanten. Jeder Datensatz trägt diesen Mandanten. Zugriff über Mandantengrenzen antwortet `404`, nicht `403`, damit die Existenz fremder Datensätze nie sichtbar wird. |
+| Widerrufene, abgelaufene oder deaktivierte Keys | Abgelehnt mit `401`. Gilt für Keys und für ganze Mandanten. |
+| Key-Ausgabe und Rotation | Noch kein Self-Service. Keys werden im Onboarding ausgegeben. Eine Admin-API für Rotation ist nicht Teil von v1. |
+
+### Scopes
+
+Jede Operation verlangt genau 1 Scope. Ein Key ohne ihn erhält `403`.
+
+| Scope | Operationen |
+| --- | --- |
+| `subjects:write` | Subject anlegen |
+| `subjects:read` | Subjects auflisten |
+| `consent:write` | Einwilligung eintragen, Einwilligung widerrufen |
+| `consent:read` | Einwilligungen auflisten |
+| `sessions:write` | Session starten, Session schließen |
+| `sessions:read` | Session lesen |
+| `perception:read` | Perception lesen |
+
+### Durchsetzung der Einwilligung
+
+- Eine Einwilligung wird mit `purpose`, `consent_version` und einem ausdrücklichen `granted: true` eingetragen. ONIOKO speichert die Bestätigung des Partners; es holt die Einwilligung nicht selbst ein.
+- Eine Session startet nur mit einer `consent_id`, die zum angegebenen `subject_id` gehört und aktiv ist. Sonst `409`.
+- Beim Lesen von Perception werden Einwilligung und Session-Zustand **vor und nach** dem Lesen geprüft. Wird die Einwilligung währenddessen widerrufen, wird das Ergebnis verworfen und der Aufruf antwortet `409`.
+- **Widerruf** schließt jede Partner-Session dieser Einwilligung und stoppt den laufenden Avatar-Call. Die Antwort bestätigt den Stopp. Widerruf löscht keine gespeicherten Daten; Löschung ist ein eigenes Recht und ein eigener Antrag.
+- Ein gelöschtes Subject antwortet bei jeder Operation mit `410`.
+
+### Pseudonymität
+
+Subjects sind opake Kennungen, die ONIOKO erzeugt. Der Vertrag hat kein Feld für Namen, E-Mail, Telefonnummer oder Geräte-ID. Die Zuordnung von Subject zu Person liegt allein beim Partner.
+
+### Rate Limits
+
+| Garantie | Umsetzung |
+| --- | --- |
+| Geltungsbereich | Pro Mandant, pro Minute. Standard 60 Anfragen pro Minute, je Vertrag konfigurierbar. |
+| Header auf jeder Antwort | `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (Sekunden bis zum Zurücksetzen). |
+| Bei Überschreitung | `429` mit `Retry-After` in Sekunden. |
+| Durchsetzung | Atomar im Speicher, damit das Limit über mehrere API-Worker hinweg hält. |
+
+### Idempotenz
+
+| Garantie | Umsetzung |
+| --- | --- |
+| Welche Operationen | Jeder Schreibvorgang: Subject anlegen, Einwilligung eintragen, Einwilligung widerrufen, Session starten, Session schließen. |
+| Header | `Idempotency-Key`, Pflicht. 16 bis 128 Zeichen aus `A-Z a-z 0-9 . _ ~ -`. |
+| Wiederholung mit gleichem Key und gleichem Body | Liefert das ursprüngliche Ergebnis. |
+| Gleicher Key, anderer Body | `409`. |
+| Unsicherer Ausgang | Kann ONIOKO nicht bestätigen, was passiert ist (etwa ein Session-Start, bei dem die Laufzeit nicht geantwortet hat), wird die Session als unsicher markiert und **nie automatisch wiederholt**. Der Partner entscheidet mit einem neuen Key. |
+| Session schließen | Ein wiederholtes Schließen mit demselben Key ist sicher. Ein unbestätigter Stopp antwortet `503`, statt Erfolg vorzutäuschen. |
+
+### Seitenweise Abfrage
+
+Listen-Operationen nehmen `limit` (1 bis 100, Standard 50) und `cursor`. Die Antwort trägt `next_cursor`; `null` bedeutet Ende. Die Reihenfolge ist innerhalb eines Mandanten stabil.
+
+### Fehlerzustände
+
+Jede Operation dokumentiert denselben Satz. Der Partner behandelt ihn 1 Mal, zentral.
+
+| Code | Bedeutung | Was der Partner tut |
+| --- | --- | --- |
+| `401` | Key fehlt, abgelaufen oder widerrufen | Stoppen und alarmieren. Neuen Key über das Onboarding holen. |
+| `403` | Key hat den nötigen Scope nicht | Scope anfragen. Nicht wiederholen. |
+| `404` | Subject, Einwilligung oder Session nicht in diesem Mandanten | Als nicht vorhanden behandeln. Nicht wiederholen. |
+| `409` | Einwilligung fehlt oder inaktiv, oder Idempotency-Key kollidiert | Einwilligungsstand prüfen oder neuen Key verwenden. |
+| `410` | Subject gelöscht | Lokale Verweise entfernen. Nicht wiederholen. |
+| `422` | Body oder Parameter ungültig | Anfrage korrigieren. |
+| `429` | Rate Limit des Mandanten überschritten | `Retry-After` Sekunden warten, dann wiederholen. |
+| `503` | Speicher oder Laufzeit nicht verfügbar, oder Stopp unbestätigt | Mit demselben Idempotency-Key nach einer Wartezeit wiederholen. |
+
+### Versionierung
+
+- Umgesetzt: Die Version steht im Pfad (`/v1/…`) und wird in jedem `API-Version`-Antwortheader zurückgegeben.
+- Richtlinie, im Vertrag mit der ersten offenen Ressource festgelegt: Eine brechende Änderung bekommt einen neuen Major-Pfad; innerhalb einer Version werden Felder hinzugefügt, nie entfernt oder umbenannt; die Abkündigung einer Major-Version wird mit Datum auf [Partnerzugang](./status) angekündigt.
+
+### Datenschutz je Operation
+
+Operationen, die pseudonyme personenbezogene Daten berühren, sagen das in ihrer Beschreibung in der API-Referenz. Heute sind das: Einwilligung widerrufen, Session starten, Perception lesen. Was gespeichert wird, wie lange, und ob es exportiert und gelöscht werden kann, folgt dem Vertrag und steht auf der Seite der Operation, sobald die Ressource offen ist.
 
 ## Offen, bis im Vertrag festgelegt
 
 | Punkt | Stand |
 | --- | --- |
-| Datenort | Je Vertrag, siehe [Status](./status) |
-| Aufbewahrungsdauer | Je Vertrag |
-| Löschfrist und Nachweisformat | Je Vertrag |
-| Unterauftragnehmer | Im Auftragsverarbeitungsvertrag aufgeführt |
+| Datenort | Je Vertrag festgelegt, siehe [Partnerzugang](./status) |
+| Aufbewahrungsdauer | Je Vertrag festgelegt |
+| Löschfrist und Format der Bestätigung | Je Vertrag festgelegt |
+| Unterauftragnehmer | In der Auftragsverarbeitungsvereinbarung gelistet |
+| Rate Limit über dem Standard | Je Vertrag festgelegt |
 
 <Callout>
-  Nichts auf dieser Seite gewährt für sich Rechte. Sie erklärt, was der Vertrag enthalten wird, damit beide Seiten sich vorbereiten können.
+  Nichts auf dieser Seite gewährt für sich Rechte. Sie erklärt, was der Vertrag enthält, damit beide Seiten sich vorbereiten können, und wird mit dem Vertrag neu erzeugt.
 </Callout>

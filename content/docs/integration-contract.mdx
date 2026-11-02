@@ -1,40 +1,132 @@
 ---
 title: Integration contract
-description: Who is responsible for what when ONIOKO runs inside a partner system.
+description: Who is responsible for what when ONIOKO runs inside a partner system, and which technical guarantees the platform enforces on every call.
 icon: Handshake
 ---
 
-An integration is a contract between two systems and the people in between. This page states the responsibilities in plain language. The legal document mirrors it, this page does not replace it.
+An integration is a contract between two systems and the people in between. This page has two halves. The first states the responsibilities in plain language. The second lists the technical guarantees as they are implemented in the platform layer, read from the generated contract. The legal document mirrors both; this page does not replace it.
 
-## The partner
+<Callout type="warn" title="State of this contract">
+  The technical guarantees below are implemented and verified in CI for the 9 prepared operations (Subjects, Consent, Sessions, Perception). They are not yet open to partners. Details can still change until a resource is open. See [Partner access](./status).
+</Callout>
 
-- **Obtains consent** from each person, with purpose, scope and duration, in a way the person understands.
+## Part 1: Responsibilities
+
+### The partner
+
+- **Obtains consent** from each person, with purpose, scope and duration, in a way the person understands. The partner records it in ONIOKO with the purpose and the version of the consent text.
 - **Shows** when perception is active and offers a way to stop it.
-- **Maps identities**: the partner knows who a subject is, ONIOKO may only know a pseudonymous reference.
+- **Maps identities**: the partner knows who a subject is. ONIOKO receives an opaque subject and never a name, e-mail or device identifier.
 - **Triggers deletion** when a person requests it, and forwards the receipt.
-- **Holds keys securely**: server keys never reach a browser or a device in the field.
+- **Holds keys securely**: partner keys are server keys. They never reach a browser or a device in the field.
 
-## ONIOKO
+### ONIOKO
 
-- **Processes only consented inputs** and answers "unavailable" otherwise.
+- **Processes only consented inputs**. A call without a matching, active consent is refused, not degraded.
+- **Keeps tenants apart**. A subject, consent or session is visible only to the tenant that created it.
 - **Stores** signals and memory entries with source and provenance, for the agreed retention.
 - **Deletes** on request within the agreed deadline, including derivations, and issues a receipt.
 - **Exports** a person's data in a portable format on request.
-- **Never adds** emotion labels, scores or diagnoses.
+- **Never adds** emotion labels, scores or diagnoses. Perception describes what is observable; the interpretation stays with the human.
 
-## What happens on revocation
+## Part 2: Technical guarantees
 
-Revocation applies at once. Running sessions stop receiving perception, new memory entries are not written. Existing entries stay until a deletion request arrives, because revocation and deletion are different rights and a person may want one without the other.
+Everything in this part comes from the generated OpenAPI contract and the code behind it. If a guarantee is missing from the code, it is missing here.
+
+### Identity and authentication
+
+| Guarantee | Implementation |
+| --- | --- |
+| Key format | Bearer key starting with `onio_`. Sent as `Authorization: Bearer <key>`. |
+| Key storage on ONIOKO's side | Only a SHA-256 digest of the key is stored. The raw key exists once, at issue time. |
+| Tenant binding | Every key belongs to exactly 1 tenant. Every record carries that tenant. Cross-tenant access answers `404`, not `403`, so the existence of foreign records is never revealed. |
+| Revoked, expired or disabled keys | Refused with `401`. Applies to keys and to whole tenants. |
+| Key issue and rotation | Not self-service yet. Keys are issued during onboarding. An admin API for rotation is not part of v1. |
+
+### Scopes
+
+Each operation requires exactly 1 scope. A key without it receives `403`.
+
+| Scope | Operations |
+| --- | --- |
+| `subjects:write` | Create subject |
+| `subjects:read` | List subjects |
+| `consent:write` | Record consent, revoke consent |
+| `consent:read` | List consents |
+| `sessions:write` | Start session, close session |
+| `sessions:read` | Read session |
+| `perception:read` | Read perception |
+
+### Consent enforcement
+
+- A consent is recorded with `purpose`, `consent_version` and an explicit `granted: true`. ONIOKO stores the partner's confirmation; it does not collect consent itself.
+- A session can only start with a `consent_id` that belongs to the given `subject_id` and is active. Otherwise `409`.
+- Reading perception checks consent and session state **before and after** the read. If consent is revoked during the read, the result is discarded and the call answers `409`.
+- **Revocation** closes every partner session of that consent and stops the running avatar call. The response confirms the stop. Revocation does not delete stored data; deletion is a separate right and a separate request.
+- A deleted subject answers `410` on every operation.
+
+### Pseudonymity
+
+Subjects are opaque identifiers created by ONIOKO. The contract has no field for a name, e-mail, phone number or device ID. The mapping from subject to person lives with the partner only.
+
+### Rate limits
+
+| Guarantee | Implementation |
+| --- | --- |
+| Scope of the limit | Per tenant, per minute. Default 60 requests per minute, configurable per contract. |
+| Headers on every response | `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset` (seconds until the window resets). |
+| On overflow | `429` with `Retry-After` in seconds. |
+| Enforcement | Atomic in storage, so the limit holds across several API workers. |
+
+### Idempotency
+
+| Guarantee | Implementation |
+| --- | --- |
+| Which operations | Every write: create subject, record consent, revoke consent, start session, close session. |
+| Header | `Idempotency-Key`, required. 16 to 128 characters from `A-Z a-z 0-9 . _ ~ -`. |
+| Repeat with the same key and body | Returns the original result. |
+| Same key, different body | `409`. |
+| Uncertain outcome | If ONIOKO cannot confirm what happened (for example a session start where the runtime did not answer), the session is marked uncertain and is **never repeated automatically**. The partner decides with a new key. |
+| Close session | A repeated close with the same key is safe. An unconfirmed stop answers `503` instead of pretending success. |
+
+### Pagination
+
+List operations take `limit` (1 to 100, default 50) and `cursor`. The response carries `next_cursor`; `null` means the end. Order is stable within a tenant.
+
+### Error states
+
+Every operation documents the same set. The partner can handle them once, centrally.
+
+| Code | Meaning | What the partner does |
+| --- | --- | --- |
+| `401` | Key missing, expired or revoked | Stop and alert. Obtain a new key through onboarding. |
+| `403` | Key lacks the required scope | Request the scope. Do not retry. |
+| `404` | Subject, consent or session not in this tenant | Treat as non-existent. Do not retry. |
+| `409` | Consent missing or inactive, or idempotency key conflicts | Check consent state or use a new key. |
+| `410` | Subject deleted | Remove local references. Do not retry. |
+| `422` | Request body or parameter invalid | Fix the request. |
+| `429` | Tenant rate limit exceeded | Wait `Retry-After` seconds, then retry. |
+| `503` | Storage or runtime unavailable, or a stop unconfirmed | Retry with the same idempotency key after a back-off. |
+
+### Versioning
+
+- Implemented: the version is in the path (`/v1/…`) and echoed in the `API-Version` response header on every response.
+- Policy, fixed in the contract with the first open resource: a breaking change gets a new major path; within a version fields are added, never removed or renamed; deprecation of a major version is announced with a date on [Partner access](./status).
+
+### Data protection per operation
+
+Operations that touch pseudonymous personal data say so in their description in the API reference. Today these are: revoke consent, start session, read perception. What is stored, how long, and whether it can be exported and deleted follows the contract and is summarised on the operation's page as soon as the resource is open.
 
 ## Open until fixed in the contract
 
 | Item | State |
 | --- | --- |
-| Data location | Fixed per contract, see [status](./status) |
+| Data location | Fixed per contract, see [Partner access](./status) |
 | Retention period | Fixed per contract |
 | Deletion deadline and receipt format | Fixed per contract |
 | Subprocessors | Listed in the data processing agreement |
+| Rate limit above the default | Fixed per contract |
 
 <Callout>
-  Nothing on this page grants rights by itself. It explains what the contract will contain so both sides can prepare.
+  Nothing on this page grants rights by itself. It explains what the contract contains so both sides can prepare, and it is regenerated with the contract.
 </Callout>

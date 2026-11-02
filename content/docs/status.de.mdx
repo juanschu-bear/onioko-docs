@@ -1,21 +1,34 @@
 ---
-title: Status
-description: Welche Ressourcen freigegeben, in Migration oder geplant sind. Aus den Vertragsdateien in der Plattformschicht gelesen, nicht von Hand geschrieben.
+title: Partnerzugang
+description: Was heute in ONIOKO-Produkten läuft, was als Partnervertrag vorbereitet ist und was für Partner offen ist. Aus den Vertragsdateien gelesen, nicht von Hand geschrieben.
 icon: Activity
 ---
 
-Diese Seite ist der ehrliche Zähler. Zahlen und Zustände kommen aus `public-api/STATUS.json`, abgeglichen mit der Plattformschicht. Wird eine Ressource freigegeben, erscheinen ihre Operationen automatisch in der API-Referenz, und der Zähler ändert sich.
+Die Technologie von ONIOKO läuft heute produktiv in ONIOKO-Produkten: Perception, Memory, Sessions und Einwilligungsverwaltung. Diese Seite beantwortet eine andere Frage: Welche Teile dieser Technologie sind über den öffentlichen Vertrag für Partner geöffnet. Zahlen und Zustände kommen aus `public-api/STATUS.json`, abgeglichen mit der Plattformschicht. Öffnet eine Ressource, verlieren ihre Operationen das Banner in der API-Referenz, und die Zähler ändern sich.
 
 <StatusBoard lang="de" />
 
-## Die Zustände lesen
+## Die Beschriftungen lesen
 
-| Zustand | Bedeutung |
+| Beschriftung | Bedeutung |
 | --- | --- |
-| <Status state="released" lang="de" /> | Teil des öffentlichen Vertrags. Operationen stehen in der API-Referenz. Unter Versionspolitik. |
-| <Status state="migrating" lang="de" /> | Existiert heute in einem Produkt und wird in die Plattformschicht überführt. Für Partner noch nicht aufrufbar. |
-| <Status state="planned" lang="de" /> | Als Partnerressource definiert, noch nicht freigegeben. Kann intern existieren. |
+| <Status state="released" lang="de" /> | Teil des öffentlichen Vertrags. Partner rufen es heute auf. Unter Versionspolitik. |
+| <Status state="migrating" lang="de" /> | Code und Vertrag existieren, in der CI geprüft. Partner-Keys werden dafür noch nicht ausgegeben. Der Vertrag kann sich noch ändern. Seiten in der Referenz tragen ein Banner. |
+| <Status state="planned" id="memory" lang="de" /> | Die Fähigkeit läuft in ONIOKO-Produkten. Ein Partnervertrag dafür ist noch nicht geöffnet. |
+| <Status state="planned" id="events" lang="de" /> | Als Partnerressource definiert. Existiert als Partnerfähigkeit noch nicht. |
 | <Status state="internal" lang="de" /> | Existiert im Code und ist bewusst nicht Teil des öffentlichen Vertrags. |
+
+## Warum ein Produkt live sein kann, während der Partnerzugang bei 0 steht
+
+Ein Partnervertrag ist mehr als eine funktionierende Route. Bevor eine Ressource öffnet, garantiert die Plattform dafür: Mandantentrennung, Keys mit Scopes, Einwilligungsprüfung bei jedem Aufruf, Rate Limits, idempotente Schreibvorgänge, dokumentierte Fehlerzustände und einen Rückweg. Produkte innerhalb von ONIOKO laufen auf derselben Technologie unter einem Dach und brauchen diese Grenze nicht. Partner brauchen sie. Erst wird die Grenze gebaut, dann geht die Tür auf.
+
+## Reihenfolge der Öffnung
+
+1. Subjects und Consent, Sessions, Perception. Vertrag vorbereitet, in Vorbereitung.
+2. Memory. Läuft in Produkten, Partnervertrag nach Schritt 1.
+3. Export und Löschung, Events.
+
+Die Reihenfolge folgt 1 Regel: Nichts darf im Auftrag eines Partners wahrgenommen oder erinnert werden, bevor Einwilligung als Vertrag existiert.
 
 ## Offene Fragen, die hier verfolgt werden
 
@@ -23,10 +36,6 @@ Diese Seite ist der ehrliche Zähler. Zahlen und Zustände kommen aus `public-ap
 - **Sandbox**: Eine getrennte Umgebung mit eigenen Keys. Geplant.
 - **Datenort und Unterauftragnehmer**: Je Vertrag festgelegt; die öffentliche Zusammenfassung folgt mit dem ersten unterschriebenen Vertrag.
 
-## Reihenfolge der Freigabe
+## Changelog
 
-1. Subjects und Consent, Sessions, Perception.
-2. Memory, nach der Migration in die Plattformschicht.
-3. Export und Löschung, Events.
-
-Die Reihenfolge folgt 1 Regel: Nichts darf wahrgenommen oder erinnert werden, bevor Einwilligung als Vertrag existiert.
+Ein Changelog beginnt mit der ersten Ressource, die für Partner öffnet. Bis dahin gibt es keine Freigabe aufzulisten, und diese Seite ist die einzige Quelle für den aktuellen Stand.

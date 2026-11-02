@@ -90,10 +90,11 @@ html > body[data-scroll-locked] {
   text-transform: uppercase;
   border: 1px solid transparent;
 }
-.onk-status[data-s='released'] { color: var(--mint); border-color: rgba(99, 230, 193, 0.45); background: rgba(99, 230, 193, 0.1); }
-.onk-status[data-s='migrating'] { color: var(--amber); border-color: rgba(244, 184, 91, 0.45); background: rgba(244, 184, 91, 0.1); }
+.onk-status[data-s='open'] { color: var(--mint); border-color: rgba(99, 230, 193, 0.45); background: rgba(99, 230, 193, 0.1); }
+.onk-status[data-s='preparing'] { color: var(--amber); border-color: rgba(244, 184, 91, 0.45); background: rgba(244, 184, 91, 0.1); }
 .onk-status[data-s='planned'] { color: rgba(244, 243, 238, 0.7); border-color: rgba(244, 243, 238, 0.25); background: rgba(244, 243, 238, 0.05); }
 .onk-status[data-s='internal'] { color: var(--coral); border-color: rgba(240, 111, 120, 0.45); background: rgba(240, 111, 120, 0.1); }
+.onk-status[data-s='inProducts'] { color: var(--cog-hi); border-color: rgba(55, 183, 255, 0.45); background: rgba(55, 183, 255, 0.1); }
 
 /* Home */
 .onk-hero h1 { font-family: var(--font-serif), 'Iowan Old Style', serif; font-weight: 400; letter-spacing: -0.015em; line-height: 1.02; }
@@ -104,3 +105,36 @@ html > body[data-scroll-locked] {
 .onk-release-banner[data-s='planned'] { border-color: color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 5%, transparent); }
 .onk-release-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 15px; }
 .onk-release-banner p { margin: 0; font-size: 14px; color: color-mix(in srgb, var(--ink) 80%, transparent); }
+
+/* Home: station tours and honest-or-absent box */
+.onk-tours { border: 1px solid var(--color-fd-border); border-radius: 22px; padding: 22px 24px; background: linear-gradient(180deg, color-mix(in srgb, var(--cog) 7%, transparent), transparent 70%), var(--color-fd-card); }
+.onk-tours-head { max-width: 760px; margin-bottom: 16px; }
+.onk-tours-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.onk-tour { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--color-fd-border); background: var(--deep); transition: border-color .18s, transform .18s; text-decoration: none; color: inherit; }
+.onk-tour:hover { border-color: var(--cog); transform: translateY(-1px); }
+.onk-tour:active { transform: scale(.98); }
+.onk-tour-n { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: var(--cog); color: var(--deep); font-weight: 800; font-size: 14px; }
+.onk-tour-t { font-weight: 700; font-size: 15px; line-height: 1.15; }
+.onk-tour-t small { display: block; margin-top: 3px; font-weight: 500; font-size: 12px; color: var(--color-fd-muted-foreground); }
+.onk-tour-arrow { color: var(--color-fd-muted-foreground); font-size: 18px; }
+.onk-tour:hover .onk-tour-arrow { color: var(--cog); }
+
+.onk-honest { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: center; border-radius: 22px; padding: 26px 28px; border: 1px solid color-mix(in srgb, var(--amber) 40%, transparent); background: color-mix(in srgb, var(--amber) 7%, var(--color-fd-card)); }
+.onk-honest-title { font-family: var(--font-serif); font-size: clamp(26px, 3vw, 36px); font-weight: 400; letter-spacing: -.01em; margin-bottom: 8px; }
+.onk-honest p { margin: 0 0 12px; font-size: 16px; line-height: 1.55; color: color-mix(in srgb, var(--ink) 85%, transparent); }
+.onk-honest-link { font-weight: 700; color: var(--amber); text-decoration: none; }
+.onk-honest-link:hover { text-decoration: underline; }
+.onk-honest-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.onk-honest-stats > div { border-radius: 14px; padding: 14px 12px; background: var(--deep); border: 1px solid var(--color-fd-border); display: grid; gap: 4px; }
+.onk-honest-stats b { font-size: 32px; line-height: 1; font-weight: 800; }
+.onk-honest-stats span { font-size: 12px; color: var(--color-fd-muted-foreground); line-height: 1.25; }
+
+@media (max-width: 900px) {
+  .onk-tours-grid { grid-template-columns: 1fr 1fr; }
+  .onk-honest { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .onk-tours-grid { grid-template-columns: 1fr; }
+  .onk-honest-stats { grid-template-columns: 1fr 1fr 1fr; }
+  .onk-honest-stats b { font-size: 26px; }
+}

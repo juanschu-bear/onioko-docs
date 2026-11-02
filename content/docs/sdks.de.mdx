@@ -1,31 +1,94 @@
 ---
 title: SDKs
-description: 3 SDKs sind geplant. Ein öffentliches SDK wird nur gelistet, wenn es alle 7 Anforderungen unten erfüllt.
+description: 3 SDKs sind geplant. Diese Seite zeigt, was jedes kapseln wird, abgeleitet aus dem vorbereiteten Vertrag, und die 7 Anforderungen, die ein öffentliches SDK erfüllen muss.
 icon: Package
 ---
 
-<Callout type="warn" title="Status">
-  Es gibt noch kein öffentliches ONIOKO-SDK. Bis eines freigegeben ist, nutzen Integrationen die kontrollierte Dokumentation aus dem Onboarding. Der Stand je SDK steht auf der [Status-Seite](./status).
+<Callout type="warn" title="Entwurf">
+  Es gibt noch kein öffentliches ONIOKO-SDK. Alles unten beschreibt die Oberfläche, die die SDKs kapseln werden, abgeleitet aus den 9 vorbereiteten Operationen. Namen und Signaturen sind ein Entwurf und können sich bis zur Freigabe des ersten SDKs ändern. Bis dahin rufen Integrationen den Vertrag direkt auf; dafür reichen [Integrationsvertrag](./integration-contract) und [API-Referenz](./api-reference).
 </Callout>
 
 ## Die 3 SDKs
 
-| SDK | Zweck | Läuft wo |
-| --- | --- | --- |
-| **Browser und Realtime** | Capture und Live-Session-Integration mit ausdrücklicher Einwilligung und Verfügbarkeits-Handling. | In der Web-App des Partners. Hält nie Server-Keys. |
-| **Server** | Mandantensichere Aufrufe, Orchestrierung, Export und Löschung. | Auf dem Server des Partners. |
-| **Events** | Typisierte Verarbeitung asynchroner Ergebnisse, Wiederholungen, Reihenfolge und Idempotenz. | Auf dem Server des Partners, neben dem Webhook-Empfänger. |
+| SDK | Zweck | Wo es läuft | Hält |
+| --- | --- | --- | --- |
+| **Server** | Mandantensichere Aufrufe von Subjects, Consent, Sessions und Perception. Export und Löschung, sobald offen. | Auf dem Server des Partners. | Den Partner-Key. |
+| **Browser und Realtime** | Tritt einer Session bei, die der Server gestartet hat, zeigt Einwilligungs- und Verfügbarkeitszustand, spricht nie direkt mit dem Vertrag. | In der Web-App oder auf dem Gerät des Partners. | Nur eine kurzlebige Session-Referenz. Nie den Partner-Key. |
+| **Events** | Typisierte Behandlung asynchroner Ergebnisse mit Wiederholungen, Reihenfolge und Idempotenz. | Auf dem Server des Partners, neben dem Webhook-Empfänger. | Ein Webhook-Signaturgeheimnis. |
+
+## Was das Server-SDK kapselt
+
+Das Server-SDK ist eine dünne, typisierte Schicht über den 9 Operationen. Es fügt nichts hinzu, was der Vertrag nicht hat; es nimmt den Boilerplate weg, den der Vertrag bei jedem Aufruf verlangt.
+
+### Übernimmt für dich
+
+| Thema | Was das SDK tut |
+| --- | --- |
+| Authentifizierung | Sendet `Authorization: Bearer onio_…` aus einer konfigurierten Geheimnisquelle. Verweigert den Lauf in einem Browser-Bundle. |
+| Idempotenz | Erzeugt einen regelkonformen `Idempotency-Key` (16 bis 128 Zeichen) für jeden Schreibvorgang und lässt dich für Wiederholungen deinen eigenen übergeben. |
+| Rate Limits | Liest `RateLimit-Remaining` und `Retry-After`, wartet und wiederholt `429` mit Back-off. |
+| Seitenweise Abfrage | Macht aus `cursor` und `next_cursor` einen asynchronen Iterator. |
+| Fehler | Bildet die 8 Fehlerzustände auf typisierte Fehler ab: `Unauthorized`, `Forbidden`, `NotFound`, `ConsentRequired`, `IdempotencyConflict`, `SubjectDeleted`, `RateLimited`, `Unavailable`. |
+| Unsichere Ausgänge | Gibt einen unsicheren Session-Start als eigenes Ergebnis zurück statt in eine Wiederholungsschleife zu laufen, wie der Vertrag es verlangt. |
+| Version | Fixiert den Major-Pfad und prüft den `API-Version`-Header. |
+
+### Entwurf der Oberfläche
+
+```ts
+// Entwurf. Namen und Formen folgen dem vorbereiteten Vertrag und können sich ändern.
+const onioko = createServerClient({ key: process.env.ONIOKO_PARTNER_KEY });
+
+const subject = await onioko.subjects.create();
+// -> { subjectId }
+
+const consent = await onioko.consent.record(subject.subjectId, {
+  purpose: 'live-perception',
+  consentVersion: '2026-11',
+  granted: true,
+});
+// -> { consentId, purpose, consentVersion }
+
+const session = await onioko.sessions.start({
+  subjectId: subject.subjectId,
+  consentId: consent.consentId,
+  persona: 'clara',
+  language: 'de',
+});
+// -> { sessionId, joinUrl }   joinUrl geht an den Browser, sonst nichts
+
+const perception = await onioko.perception.read(session.sessionId);
+// -> { sessionId, speakerName, perception, timestamp } oder wirft ConsentRequired
+
+await onioko.sessions.close(session.sessionId);
+await onioko.consent.revoke(subject.subjectId, consent.consentId);
+// revoke schließt jede Session dieser Einwilligung und bestätigt den Stopp
+
+for await (const s of onioko.subjects.list()) { /* Cursor-Pagination übernommen */ }
+```
+
+## Was das Browser-SDK kapselt
+
+Der Browser sieht nie den Partner-Key und ruft nie den Vertrag auf. Der Server startet eine Session und gibt dem Browser die `joinUrl` aus `startSession`. Das Browser-SDK:
+
+- tritt dieser Session bei und meldet den Verbindungszustand,
+- zeigt, ob Wahrnehmung aktiv ist, damit der Partner den Hinweis rendern kann, den der Vertrag verlangt,
+- bietet ein `stop()`, das die Session von Seiten der Person beendet,
+- antwortet mit `unavailable` als normalem Zustand, nicht als Fehler, wenn Einwilligung oder Session nicht mehr gültig sind.
+
+## Was das Events-SDK kapselt
+
+Events ist eine geplante Ressource. Sobald sie öffnet, prüft das SDK die Webhook-Signatur, dedupliziert über die Event-ID, liefert Events je Session in Reihenfolge und wiederholt deinen Handler mit Back-off. Bis dahin gibt es nichts zu kapseln, und dieser Abschnitt bleibt ein Plan.
 
 ## Die 7 Anforderungen
 
 Ein SDK ist ein versionierter Client, kein Marketing-Label. ONIOKO listet ein SDK nur öffentlich, wenn all das existiert:
 
-1. **Installation**: Paketquelle, Mindestversionen der Laufzeit, 1 Befehl, verifizierbar.
-2. **Authentifizierung**: Woher der Key kommt, wie er gehalten wird, was nie im Browser liegen darf, Rotation.
+1. **Installation**: Paketquelle, minimale Laufzeitversionen, 1 Befehl, überprüfbar.
+2. **Authentifizierung**: Woher der Key kommt, wie er gehalten wird, was nie in einem Browser liegen darf, Rotation.
 3. **Typisierte Schnittstellen**: Jede Ressource als Typ, jeder Fehler als Typ, nichts als `any`.
-4. **Lauffähige Beispiele**: Session anlegen, Einwilligung setzen, Eingabe senden, Signale lesen, Memory schreiben und lesen, Export, Löschung. Jedes Beispiel läuft gegen die Sandbox.
-5. **Semantische Versionierung**: Was ein Breaking Change ist, wie lange alte Major-Versionen leben.
-6. **Migrationshinweise**: Von jeder Major-Version zur nächsten, mit Vorher/Nachher-Code.
-7. **Changelog**: Jede Version, jedes Datum, jede Änderung. Maschinenlesbar und lesbar.
+4. **Lauffähige Beispiele**: Subject anlegen, Einwilligung eintragen, Session starten, Perception lesen, Session schließen, Einwilligung widerrufen, später Export und Löschung. Jedes Beispiel läuft gegen die Sandbox.
+5. **Semantische Versionierung**: Was als brechende Änderung gilt, wie lange alte Major-Versionen leben.
+6. **Migrationshinweise**: Von jeder Major-Version zur nächsten, mit Code vorher und nachher.
+7. **Changelog**: Jede Version, jedes Datum, jede Änderung. Maschinen- und menschenlesbar.
 
-Wenn ein SDK freigegeben wird, erscheint seine Seite in diesem Bereich mit genau diesen 7 Teilen, in dieser Reihenfolge.
+Wird ein SDK freigegeben, erscheint seine Seite in diesem Abschnitt mit genau diesen 7 Teilen, in dieser Reihenfolge, und das Entwurfs-Label oben verschwindet.

@@ -65,8 +65,8 @@ export const translations = i18n
   });
 
 const NAV = {
-  en: { status: 'Status', site: 'onioko.com' },
-  de: { status: 'Status', site: 'onioko.com' },
+  en: { status: 'Partner access', site: 'onioko.com' },
+  de: { status: 'Partnerzugang', site: 'onioko.com' },
 } as const;
 
 export function baseOptions(locale: string): BaseLayoutProps {
